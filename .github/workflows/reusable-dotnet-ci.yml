@@ -1,0 +1,93 @@
+name: Reusable .NET CI
+
+on:
+  workflow_call:
+    inputs:
+      service-path:
+        description: 'Path to the .NET service/project directory (e.g., src/Orders.Api)'
+        required: true
+        type: string
+      dotnet-version:
+        description: '.NET SDK version to use (X.Y.x or X.Y.Z format)'
+        required: false
+        type: string
+        default: '8.0.x'
+    secrets:
+      SONAR_TOKEN:
+        description: 'SonarCloud authentication token'
+        required: true
+
+jobs:
+  build-and-test:
+    name: Restore, Build, Test & Analyze
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history required for SonarCloud analysis
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      - name: Install SonarCloud scanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/Directory.Build.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: ${{ inputs.service-path }}
+
+      - name: Begin SonarCloud analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet-sonarscanner begin \
+            /k:"${{ github.repository_owner }}_${{ github.event.repository.name }}" \
+            /o:"${{ github.repository_owner }}" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+
+      - name: Build (Release)
+        run: dotnet build --no-restore --configuration Release
+        working-directory: ${{ inputs.service-path }}
+
+      - name: Run tests with coverage
+        run: |
+          dotnet test --no-build --configuration Release \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./TestResults \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+        working-directory: ${{ inputs.service-path }}
+
+      - name: End SonarCloud analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: .NET Test Results
+          path: '${{ inputs.service-path }}/TestResults/**/*.trx'
+          reporter: dotnet-trx
+          fail-on-error: true
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: ${{ inputs.service-path }}/TestResults/**/coverage.opencover.xml

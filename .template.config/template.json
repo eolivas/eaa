@@ -1,0 +1,39 @@
+{
+  "author": "Enterprise Architecture Team",
+  "classifications": [
+    "Web",
+    "API",
+    "Clean Architecture",
+    "Enterprise"
+  ],
+  "identity": "EnterpriseAppArchitecture.Orders",
+  "name": "Enterprise App Architecture - Clean Architecture Solution",
+  "shortName": "eaa-orders",
+  "description": "A Clean Architecture solution template with Domain, Application, Infrastructure, and API layers plus comprehensive test projects.",
+  "tags": {
+    "language": "C#",
+    "type": "solution"
+  },
+  "sourceName": "Orders",
+  "preferNameDirectory": true,
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [
+            "frontend/**",
+            "docs/**",
+            "docker-compose.yml",
+            ".kiro/**",
+            ".github/**",
+            ".vscode/**",
+            ".template.config/**",
+            "**/bin/**",
+            "**/obj/**",
+            "**/node_modules/**"
+          ]
+        }
+      ]
+    }
+  ]
+}

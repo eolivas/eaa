@@ -1,0 +1,20 @@
+# CODEOWNERS — Enterprise Application Architecture
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Each line is a file pattern followed by one or more owners.
+# Order matters: later rules override earlier ones for matching paths.
+
+# Global fallback — all files not matched below
+*                                   @enterprise-org/senior-engineers
+
+# Domain and Application layers
+Orders.Domain/                      @enterprise-org/domain-team
+Orders.Application/                 @enterprise-org/domain-team
+
+# Infrastructure, CI/CD, and platform
+Orders.Infrastructure/              @enterprise-org/platform-team
+.github/                            @enterprise-org/platform-team
+platform-infra/                     @enterprise-org/platform-team
+
+# Frontend
+frontend/                           @enterprise-org/frontend-team

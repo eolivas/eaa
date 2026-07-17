@@ -1,0 +1,38 @@
+{
+  "tools": [
+    {
+      "name": "get_order",
+      "description": "Retrieves an order by its ID.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The order ID (UUID)."
+          }
+        },
+        "required": ["orderId"]
+      }
+    },
+    {
+      "name": "place_order",
+      "description": "Places a new order for a customer.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The customer ID (UUID)."
+          },
+          "linesJson": {
+            "type": "string",
+            "description": "JSON array of order lines. Each line: {\"productId\": \"uuid\", \"quantity\": int, \"unitPrice\": decimal, \"currency\": \"string\"}."
+          }
+        },
+        "required": ["customerId", "linesJson"]
+      }
+    }
+  ]
+}
