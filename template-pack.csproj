@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageType>Template</PackageType>
+    <PackageVersion>1.0.0</PackageVersion>
+    <PackageId>Eolivas.EnterpriseAppArchitecture</PackageId>
+    <Title>Enterprise App Architecture - Clean Architecture Solution</Title>
+    <Authors>eolivas</Authors>
+    <Description>A Clean Architecture solution template with Domain, Application, Infrastructure, and API layers, CQRS with MediatR, MassTransit messaging, EF Core, and comprehensive test projects.</Description>
+    <PackageTags>dotnet-new;templates;clean-architecture;enterprise;cqrs;ddd</PackageTags>
+    <PackageProjectUrl>https://github.com/eolivas/eaa</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/eolivas/eaa</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <TargetFramework>net8.0</TargetFramework>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include=".template.config\**" />
+    <Content Include="src\**" Exclude="src\**\bin\**;src\**\obj\**" />
+    <Content Include="tests\**" Exclude="tests\**\bin\**;tests\**\obj\**" />
+    <Content Include="Directory.Build.props" />
+    <Content Include="Orders.sln" />
+    <Content Include="global.json" />
+    <Content Include="README.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

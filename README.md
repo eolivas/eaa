@@ -126,6 +126,75 @@ See [docs/bounded-contexts.md](docs/bounded-contexts.md) for the full context ma
 
 This project follows [Conventional Commits](https://www.conventionalcommits.org/). See [docs/REPO_CONVENTIONS.md](docs/REPO_CONVENTIONS.md) for details.
 
+## Use as a Template (NuGet Package)
+
+This repository is published as a `dotnet new` template on GitHub Packages. Teams can scaffold new projects from this architecture baseline.
+
+### Package Info
+
+| Field | Value |
+|-------|-------|
+| Package | `Eolivas.EnterpriseAppArchitecture` |
+| Feed URL | `https://nuget.pkg.github.com/eolivas/index.json` |
+| Short name | `eaa-orders` |
+
+### Setup (one-time)
+
+1. Create a [GitHub Personal Access Token](https://github.com/settings/tokens) with `read:packages` scope.
+
+2. Add the GitHub Packages source to your NuGet config:
+
+```bash
+dotnet nuget add source "https://nuget.pkg.github.com/eolivas/index.json" \
+  --name github-eolivas \
+  --username eolivas \
+  --password YOUR_GITHUB_PAT \
+  --store-password-in-clear-text
+```
+
+3. Install the template:
+
+```bash
+dotnet new install Eolivas.EnterpriseAppArchitecture
+```
+
+### Create a new project
+
+```bash
+mkdir MyNewService
+cd MyNewService
+dotnet new eaa-orders -n MyNewService
+```
+
+The `-n` parameter replaces `Orders` with your project name across the entire solution (namespaces, project files, solution file).
+
+### Update to the latest template version
+
+```bash
+dotnet new install Eolivas.EnterpriseAppArchitecture
+```
+
+Re-running the install command pulls the latest published version. Existing projects are not affected — only new scaffolding uses the updated template.
+
+### Uninstall
+
+```bash
+dotnet new uninstall Eolivas.EnterpriseAppArchitecture
+```
+
+## Publishing a New Template Version
+
+Maintainers publish new versions by tagging a commit:
+
+```bash
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+The `publish-template.yml` GitHub Action automatically packs and pushes the NuGet package to GitHub Packages.
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.
+
 ## License
 
 Private repository. All rights reserved.
