@@ -136,7 +136,7 @@ This repository is published as a `dotnet new` template on GitHub Packages. Team
 |-------|-------|
 | Package | `Eolivas.EnterpriseAppArchitecture` |
 | Feed URL | `https://nuget.pkg.github.com/eolivas/index.json` |
-| Short name | `eaa-orders` |
+| Short name | `eaa-solution` |
 
 ### Setup (one-time)
 
@@ -163,7 +163,7 @@ dotnet new install Eolivas.EnterpriseAppArchitecture
 ```bash
 mkdir MyNewService
 cd MyNewService
-dotnet new eaa-orders -n MyNewService
+dotnet new eaa-solution -n MyNewService
 ```
 
 The `-n` parameter replaces `Orders` with your project name across the entire solution (namespaces, project files, solution file).

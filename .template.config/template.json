@@ -8,7 +8,7 @@
   ],
   "identity": "EnterpriseAppArchitecture.Orders",
   "name": "Enterprise App Architecture - Clean Architecture Solution",
-  "shortName": "eaa-orders",
+  "shortName": "eaa-solution",
   "description": "A Clean Architecture solution template with Domain, Application, Infrastructure, and API layers plus comprehensive test projects.",
   "tags": {
     "language": "C#",
