@@ -32,7 +32,7 @@ jobs:
       - name: Pack template
         run: |
           dotnet pack template-pack.csproj \
-            --configuration Release \
+            --no-build \
             --output ./nupkg \
             -p:PackageVersion=${{ steps.version.outputs.VERSION }}
 

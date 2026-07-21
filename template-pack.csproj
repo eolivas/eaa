@@ -19,7 +19,15 @@
     <ContentTargetFolders>content</ContentTargetFolders>
     <NoWarn>$(NoWarn);NU5128</NoWarn>
     <NoDefaultExcludes>true</NoDefaultExcludes>
+
+    <!-- Prevent compilation of template source files -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="**\*" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include=".template.config\**" />
