@@ -166,7 +166,7 @@ cd MyNewService
 dotnet new eaa-solution -n MyNewService
 ```
 
-The `-n` parameter replaces `Orders` with your project name across the entire solution (namespaces, project files, solution file).
+The `-n` parameter sets your project name. The template uses `Orders` as a placeholder — it gets replaced with your chosen name across the solution file, project files, and namespaces (e.g., `MyNewService.Domain`, `MyNewService.Application`, etc.).
 
 ### Update to the latest template version
 
