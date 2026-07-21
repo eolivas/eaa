@@ -140,7 +140,7 @@ This repository is published as a `dotnet new` template on GitHub Packages. Team
 
 ### Setup (one-time)
 
-1. Create a [GitHub Personal Access Token](https://github.com/settings/tokens) with `read:packages` scope.
+1. Create a [GitHub Personal Access Token](https://github.com/settings/tokens) (**classic**, not fine-grained) with `read:packages` scope.
 
 2. Add the GitHub Packages source to your NuGet config:
 
