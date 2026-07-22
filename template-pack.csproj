@@ -33,10 +33,13 @@
     <Content Include=".template.config\**" />
     <Content Include="src\**" Exclude="src\**\bin\**;src\**\obj\**" />
     <Content Include="tests\**" Exclude="tests\**\bin\**;tests\**\obj\**" />
+    <Content Include="docs\**" />
     <Content Include="Directory.Build.props" />
     <Content Include="Orders.sln" />
     <Content Include="global.json" />
     <Content Include="README.md" />
+    <Content Include="CHANGELOG.md" />
+    <Content Include=".gitignore" />
   </ItemGroup>
 
   <ItemGroup>
