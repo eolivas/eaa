@@ -18,6 +18,10 @@
   "preferNameDirectory": true,
   "sources": [
     {
+      "include": [
+        "**",
+        ".kiro/steering/**"
+      ],
       "modifiers": [
         {
           "exclude": [
