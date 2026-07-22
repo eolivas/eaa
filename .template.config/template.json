@@ -23,7 +23,7 @@
           "exclude": [
             "frontend/**",
             "docker-compose.yml",
-            ".kiro/**",
+            ".kiro/specs/**",
             ".github/**",
             ".vscode/**",
             ".template.config/**",
