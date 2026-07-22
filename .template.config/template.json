@@ -18,22 +18,27 @@
   "preferNameDirectory": true,
   "sources": [
     {
+      "source": "./",
+      "target": "./",
       "include": [
-        "**",
-        ".kiro/steering/**"
+        "**/*",
+        ".kiro/**"
+      ],
+      "exclude": [
+        "frontend/**",
+        "docker-compose.yml",
+        ".kiro/specs/**",
+        ".github/**",
+        ".vscode/**",
+        ".template.config/**",
+        "**/bin/**",
+        "**/obj/**",
+        "**/node_modules/**",
+        ".git/**"
       ],
       "modifiers": [
         {
           "exclude": [
-            "frontend/**",
-            "docker-compose.yml",
-            ".kiro/specs/**",
-            ".github/**",
-            ".vscode/**",
-            ".template.config/**",
-            "**/bin/**",
-            "**/obj/**",
-            "**/node_modules/**",
             "src/Orders.Api/Endpoints/**",
             "src/Orders.Api/Mcp/**",
             "src/Orders.Domain/Order.cs",
