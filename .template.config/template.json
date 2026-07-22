@@ -22,7 +22,6 @@
         {
           "exclude": [
             "frontend/**",
-            "docs/**",
             "docker-compose.yml",
             ".kiro/**",
             ".github/**",
@@ -30,7 +29,37 @@
             ".template.config/**",
             "**/bin/**",
             "**/obj/**",
-            "**/node_modules/**"
+            "**/node_modules/**",
+            "src/Orders.Api/Endpoints/**",
+            "src/Orders.Api/Mcp/**",
+            "src/Orders.Domain/Order.cs",
+            "src/Orders.Domain/OrderId.cs",
+            "src/Orders.Domain/OrderLine.cs",
+            "src/Orders.Domain/OrderLineId.cs",
+            "src/Orders.Domain/OrderStatus.cs",
+            "src/Orders.Domain/CustomerId.cs",
+            "src/Orders.Domain/ProductId.cs",
+            "src/Orders.Domain/IOrderRepository.cs",
+            "src/Orders.Domain/Pricing/**",
+            "src/Orders.Domain/Events/**",
+            "src/Orders.Application/Commands/**",
+            "src/Orders.Application/Queries/**",
+            "src/Orders.Application/DTOs/**",
+            "src/Orders.Application/Interfaces/IOrderExporter.cs",
+            "src/Orders.Application/Interfaces/IOrderReader.cs",
+            "src/Orders.Application/Interfaces/IOrderWriter.cs",
+            "src/Orders.Infrastructure/Persistence/EfOrderRepository.cs",
+            "src/Orders.Infrastructure/Persistence/OrderEntityTypeConfiguration.cs",
+            "src/Orders.Infrastructure/Persistence/OrdersDbContext.cs",
+            "src/Orders.Infrastructure/Caching/**",
+            "src/Orders.Infrastructure/Messaging/**",
+            "src/Orders.Infrastructure/Specifications/**",
+            "tests/Orders.Domain.Tests/OrderTests.cs",
+            "tests/Orders.Domain.Tests/OrderFaker.cs",
+            "tests/Orders.Domain.Tests/PricingServiceTests.cs",
+            "tests/Orders.Domain.Tests/OrderRepositoryContractTests.cs",
+            "tests/Orders.Application.Tests/PlaceOrderHandlerTests.cs",
+            "tests/Orders.Infrastructure.Tests/EfOrderRepositoryContractTests.cs"
           ]
         }
       ]
