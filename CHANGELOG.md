@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-07-20
+
+### Added
+
+- 10 Kiro steering skills for AI-assisted development guidance
+  - Clean Architecture Layer Placement
+  - DDD Aggregate & Entity Creation
+  - CQRS Command/Query Scaffolding
+  - MassTransit Consumer & Event Publishing
+  - Minimal API Endpoint Conventions
+  - EF Core Entity Configuration
+  - Testing Conventions
+  - Conventional Commits & PR Standards
+  - React Feature Module
+  - Docker & CI/CD Awareness
+- Steering files included in template output (`.kiro/steering/`)
+- README section documenting available steering skills
+
 ## [1.0.0] - 2026-07-20
 
 ### Added

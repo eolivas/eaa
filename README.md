@@ -122,6 +122,23 @@ The platform is decomposed into three bounded contexts:
 
 See [docs/bounded-contexts.md](docs/bounded-contexts.md) for the full context map.
 
+## Kiro Steering Skills
+
+This project includes 10 steering files in `.kiro/steering/` that guide AI-assisted development to follow the project's established patterns. They are automatically loaded into context.
+
+| # | Skill | What It Guides |
+|---|-------|----------------|
+| 01 | [Clean Architecture Layer Placement](`.kiro/steering/01-clean-architecture-layer-placement.md`) | Where new code goes (Domain vs Application vs Infrastructure vs Api) and the dependency rule |
+| 02 | [DDD Aggregate & Entity Creation](`.kiro/steering/02-ddd-aggregate-entity-creation.md`) | Static factory methods, private setters, strongly-typed IDs, domain events, invariant enforcement |
+| 03 | [CQRS Command/Query Scaffolding](`.kiro/steering/03-cqrs-command-query-scaffolding.md`) | MediatR commands, queries, handlers, FluentValidation, pipeline behaviours, DTOs |
+| 04 | [MassTransit Consumer & Event Publishing](`.kiro/steering/04-masstransit-consumer-event-publishing.md`) | Domain events, outbox pattern, consumer creation, idempotency expectations |
+| 05 | [Minimal API Endpoint Conventions](`.kiro/steering/05-minimal-api-endpoint-conventions.md`) | Route groups, authorization, ISender dispatch, HTTP status codes, request/response records |
+| 06 | [EF Core Entity Configuration](`.kiro/steering/06-efcore-entity-configuration.md`) | Value conversions, owned entities, PropertyAccessMode.Field, snake_case table naming |
+| 07 | [Testing Conventions](`.kiro/steering/07-testing-conventions.md`) | xUnit nested classes, naming patterns, Moq, FluentAssertions, architecture tests |
+| 08 | [Conventional Commits & PR Standards](`.kiro/steering/08-conventional-commits-pr-standards.md`) | Commit format, type/scope, breaking changes, PR template, 400-line diff limit |
+| 09 | [React Feature Module](`.kiro/steering/09-react-feature-module.md`) | Feature folder structure, TanStack Query hooks, Zustand stores, barrel exports |
+| 10 | [Docker & CI/CD Awareness](`.kiro/steering/10-docker-cicd-awareness.md`) | docker-compose services, GitHub Actions pipeline stages, coverage thresholds, deployment flow |
+
 ## Commit Conventions
 
 This project follows [Conventional Commits](https://www.conventionalcommits.org/). See [docs/REPO_CONVENTIONS.md](docs/REPO_CONVENTIONS.md) for details.
