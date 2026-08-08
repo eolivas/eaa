@@ -17,9 +17,14 @@ public sealed class OrderPlacedConsumer : IConsumer<OrderPlacedEvent>
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public Task Consume(ConsumeContext<OrderPlacedEvent> context)
+    public async Task Consume(ConsumeContext<OrderPlacedEvent> context)
     {
-        _logger.LogInformation("Received OrderPlacedEvent for Order {OrderId}", context.Message.OrderId);
-        return Task.CompletedTask;
+        var correlationId = context.Headers.Get<string>("X-Correlation-Id");
+
+        using (Serilog.Context.LogContext.PushProperty("CorrelationId", correlationId ?? Guid.NewGuid().ToString()))
+        {
+            _logger.LogInformation("Received OrderPlacedEvent for Order {OrderId}", context.Message.OrderId);
+            await Task.CompletedTask;
+        }
     }
 }

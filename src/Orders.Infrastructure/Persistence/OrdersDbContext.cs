@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Orders.Domain;
 using Orders.Domain.Common;
+using Orders.Infrastructure.Messaging;
 
 namespace Orders.Infrastructure.Persistence;
 
@@ -12,12 +13,22 @@ namespace Orders.Infrastructure.Persistence;
 /// </summary>
 public class OrdersDbContext : DbContext
 {
+    private readonly ICorrelationIdAccessor? _correlationIdAccessor;
+
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     public OrdersDbContext(DbContextOptions<OrdersDbContext> options)
         : base(options)
     {
+    }
+
+    public OrdersDbContext(
+        DbContextOptions<OrdersDbContext> options,
+        ICorrelationIdAccessor? correlationIdAccessor)
+        : base(options)
+    {
+        _correlationIdAccessor = correlationIdAccessor;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,6 +49,9 @@ public class OrdersDbContext : DbContext
             .SelectMany(a => a.DomainEvents)
             .ToList();
 
+        // Capture the correlation ID from the current context (if available).
+        var correlationId = _correlationIdAccessor?.CorrelationId;
+
         // Convert each domain event to an OutboxMessage row.
         foreach (var domainEvent in domainEvents)
         {
@@ -47,7 +61,8 @@ public class OrdersDbContext : DbContext
                 EventType = domainEvent.GetType().AssemblyQualifiedName!,
                 Payload = JsonSerializer.Serialize(domainEvent, domainEvent.GetType()),
                 OccurredAt = domainEvent.OccurredAt,
-                ProcessedAt = null
+                ProcessedAt = null,
+                CorrelationId = correlationId
             };
 
             OutboxMessages.Add(outboxMessage);

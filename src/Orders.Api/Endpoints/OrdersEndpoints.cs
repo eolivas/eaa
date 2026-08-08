@@ -1,5 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Orders.Api.Extensions;
 using Orders.Application.Commands;
 using Orders.Application.DTOs;
 using Orders.Application.Queries;
@@ -20,7 +22,8 @@ public static class OrdersEndpoints
     public static IEndpointRouteBuilder MapOrdersEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("/api/orders")
-            .RequireAuthorization();
+            .RequireAuthorization()
+            .RequireRateLimiting(RateLimitingServiceCollectionExtensions.PolicyName);
 
         group.MapPost("/", async (PlaceOrderRequest request, ISender sender) =>
         {
@@ -60,7 +63,7 @@ public static class OrdersEndpoints
         .Produces(StatusCodes.Status404NotFound)
         .WithOpenApi();
 
-        group.MapDelete("/{id:guid}", async (Guid id, CancelOrderRequest? request, ISender sender) =>
+        group.MapDelete("/{id:guid}", async (Guid id, [FromBody] CancelOrderRequest? request, ISender sender) =>
         {
             try
             {

@@ -10,4 +10,8 @@ public class OutboxMessage
     public string Payload { get; set; } = string.Empty;
     public DateTime OccurredAt { get; set; }
     public DateTime? ProcessedAt { get; set; }
+    public int RetryCount { get; set; }
+    public DateTime? FailedAt { get; set; }
+    public string? FailureReason { get; set; }
+    public string? CorrelationId { get; set; }
 }

@@ -92,6 +92,52 @@ jobs:
             -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
             -Dsonar.cs.opencover.reportsPaths=**/coverage.opencover.xml
 
+  ef-migrations-check:
+    name: EF Migrations Check
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: orders_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 6
+          --health-start-period 30s
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Install dotnet-ef tool
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Check for pending model changes
+        run: |
+          dotnet ef migrations has-pending-model-changes \
+            --project src/Orders.Infrastructure \
+            --startup-project src/Orders.Api
+
+      - name: Apply migrations to temporary database
+        run: |
+          dotnet ef database update \
+            --project src/Orders.Infrastructure \
+            --startup-project src/Orders.Api \
+            --connection "Host=localhost;Port=5432;Database=orders_ci;Username=postgres;Password=postgres"
+
   build-and-push:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest

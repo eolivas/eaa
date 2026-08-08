@@ -13,15 +13,27 @@ Local development uses `docker-compose.yml` with these services:
 | `orders-api` | Built from `src/Orders.Api/Dockerfile` | 5000:8080 | .NET 8 API |
 | `postgres` | `postgres:16` | 5432:5432 | PostgreSQL database |
 | `rabbitmq` | `rabbitmq:3.13-management` | 5672, 15672 | Message broker |
-| `frontend` | Built from `frontend/Dockerfile` | 3000:80 | React SPA (nginx) |
+| `frontend` | Built from `frontend/Dockerfile` | 3000:80 | React SPA (nginx, proxies /api) |
+| `otel-collector` | `otel/opentelemetry-collector-contrib:0.96.0` | 4317 | OTLP receiver, forwards to Jaeger + Prometheus |
+| `jaeger` | `jaegertracing/all-in-one:1.54` | 16686 | Distributed trace visualization |
+| `prometheus` | `prom/prometheus:v2.50.0` | 9090 | Metrics query UI |
 
 ### Service Dependencies
-- `orders-api` depends on `postgres` (healthy) and `rabbitmq` (healthy)
+- `orders-api` depends on `postgres` (healthy), `rabbitmq` (healthy), and `otel-collector` (healthy)
 - `frontend` depends on `orders-api`
+
+### Nginx Proxy
+The frontend nginx config proxies `/api` requests to `orders-api:8080`:
+```nginx
+location /api/ {
+    proxy_pass http://orders-api:8080/api/;
+}
+```
 
 ### Connection Strings (Development)
 - PostgreSQL: `Host=postgres;Port=5432;Database=orders;Username=postgres;Password=postgres`
 - RabbitMQ: `Host=rabbitmq;Username=guest;Password=guest`
+- OTLP: Exporter sends to `http://otel-collector:4317`
 
 ### Adding a New Service
 1. Add service definition to `docker-compose.yml`
@@ -44,7 +56,13 @@ lint-and-test → build-and-push → deploy-staging → deploy-production
  - **Coverage threshold: 80%** (fails CI if below)
  - SonarCloud analysis
 
-2. **Build & Push** (main branch only)
+2. **EF Migrations Validation** (all PRs)
+ - PostgreSQL service container with health check (30s timeout)
+ - Install `dotnet-ef` tool
+ - `dotnet ef migrations has-pending-model-changes` — fails if model diverged from latest migration
+ - `dotnet ef database update` against temp PostgreSQL — fails if migration can't apply cleanly
+
+3. **Build & Push** (main branch only)
  - Docker multi-arch build (amd64 + arm64)
  - Push to Amazon ECR
  - Trivy vulnerability scan (CRITICAL/HIGH fails the build)
@@ -91,6 +109,11 @@ lint → type-check → test → build → deploy (S3 + CloudFront)
 | `Jwt__Authority` | API container | OIDC provider URL |
 | `Jwt__Audience` | API container | Expected JWT audience |
 | `ASPNETCORE_ENVIRONMENT` | API container | Environment name |
+| `Cors__AllowedOrigins__0` | API container | Allowed CORS origin |
+| `RateLimit__PermitLimit` | API container | Rate limit per window |
+| `RateLimit__WindowSeconds` | API container | Rate limit window duration |
+| `Outbox__PollingIntervalSeconds` | API container | Outbox poll frequency |
+| `VITE_API_BASE_URL` | Frontend build arg | API base URL for frontend |
 
 ## When Modifying Infrastructure
 

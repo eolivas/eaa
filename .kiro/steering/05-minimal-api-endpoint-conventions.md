@@ -39,6 +39,31 @@ app.MapOrdersEndpoints();
 app.MapInvoicesEndpoints(); // Add new resource
 ```
 
+## Rate Limiting
+
+Endpoint groups that handle public traffic should apply rate limiting:
+
+```csharp
+var group = endpoints.MapGroup("/api/invoices")
+    .RequireAuthorization()
+    .RequireRateLimiting("orders-api");  // Fixed-window rate limit
+```
+
+The `"orders-api"` rate limit policy is configured in `AddOrdersRateLimiter()` extension. When exceeded, returns HTTP 429 with `Retry-After` header.
+
+## Health Check & Operational Endpoints
+
+These are registered separately from business endpoints:
+
+| Endpoint | Purpose | Auth |
+|----------|---------|------|
+| `GET /health/live` | Liveness probe (always healthy) | Anonymous |
+| `GET /health/ready` | Readiness (checks PostgreSQL + RabbitMQ) | Anonymous |
+| `GET /openapi/v1.json` | OpenAPI spec | Anonymous |
+| `GET /swagger` | Swagger UI (Development only) | Anonymous |
+
+Do NOT add auth or rate limiting to health check endpoints.
+
 ## Endpoint Conventions
 
 ### Route Pattern

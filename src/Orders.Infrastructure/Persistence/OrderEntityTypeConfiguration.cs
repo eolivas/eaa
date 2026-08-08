@@ -35,6 +35,12 @@ public sealed class OrderEntityTypeConfiguration : IEntityTypeConfiguration<Orde
         // Ignore the computed Total property — it derives from OrderLine data
         builder.Ignore(o => o.Total);
 
+        // Ignore the public Lines read-only property; EF uses the _lines backing field
+        builder.Ignore(o => o.Lines);
+
+        // Ignore domain events — they are not persisted as a navigation on Order
+        builder.Ignore(o => o.DomainEvents);
+
         // OrderLine collection as owned-many, mapped to "order_lines" table
         builder.OwnsMany<OrderLine>("_lines", lineBuilder =>
         {

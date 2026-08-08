@@ -150,9 +150,51 @@ Rules:
 
 ## Shared Libraries (`frontend/src/lib/`)
 
-- `http.ts` — Axios instance with base URL `/api` and auth token interceptor
+- `http.ts` — Axios instance with base URL from `VITE_API_BASE_URL` (default `/api`), auth token interceptor, 401 redirect to `/login`, network error detection
 - `auth-store.ts` — Global Zustand store for JWT token
 - `index.ts` — Barrel export
+
+## Shared Components (`frontend/src/shared/`)
+
+- `ErrorBoundary` — Class component at app root catching unhandled rendering errors. Displays fallback with `role="alert"` and reload button.
+- `LoadingIndicator` — Renders a spinner with `aria-busy="true"` on the containing element for accessibility.
+
+## Error Handling Patterns
+
+### ProblemDetails Parsing (`useApiError` hook)
+
+```typescript
+import { useApiError } from '@/shared/hooks';
+
+function MyForm() {
+  const { error, fieldErrors, parseError } = useApiError();
+
+  const handleSubmit = async () => {
+    try { await api.post(...); }
+    catch (e) { parseError(e); }
+  };
+
+  return (
+    <>
+      {error && <div role="alert">{error}</div>}
+      {fieldErrors.quantity && <span>{fieldErrors.quantity}</span>}
+    </>
+  );
+}
+```
+
+Rules:
+- Parse `detail` field (or `title` fallback) for general error display
+- Parse `errors` dictionary for per-field validation messages
+- Network errors (no response): display "Unable to reach the server"
+- HTTP 401: clear auth store, redirect to `/login`
+
+### Environment Configuration
+
+The API base URL is configurable per environment:
+- `VITE_API_BASE_URL` env var at build time (via Vite)
+- Default: `/api` (relative path for same-origin via nginx proxy)
+- Frontend Dockerfile accepts `ARG VITE_API_BASE_URL` for Docker builds
 
 ## Tech Stack Reference
 

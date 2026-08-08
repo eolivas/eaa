@@ -10,11 +10,12 @@ All tests live in `tests/` with one test project per source project. Follow thes
 
 ```
 tests/
-├── Orders.Domain.Tests/        → Unit tests for domain entities and value objects
+├── Orders.Domain.Tests/        → Unit tests + property tests for domain logic
 ├── Orders.Application.Tests/   → Unit tests for handlers (mocked deps)
-├── Orders.Infrastructure.Tests/→ Integration tests for repositories
+├── Orders.Infrastructure.Tests/→ Outbox, messaging, and persistence tests (property + unit)
 ├── Orders.Architecture.Tests/  → Architecture enforcement (NetArchTest)
-├── Orders.Api.Tests/           → Endpoint integration tests
+├── Orders.Api.Tests/           → Middleware & endpoint property tests (WebApplicationFactory)
+├── Orders.Integration.Tests/   → End-to-end tests (WebApplicationFactory + Testcontainers)
 └── Orders.Template.Tests/      → Template-specific validation
 ```
 
@@ -23,8 +24,12 @@ tests/
 - **xUnit** — test framework
 - **FluentAssertions** — assertion library (Application/Infrastructure tests)
 - **Moq** — mocking (Application handler tests)
+- **FsCheck.Xunit** — property-based testing (C# backend)
 - **NetArchTest.Rules** — architecture enforcement
 - **Bogus (Fakers)** — test data generation (e.g., `OrderFaker.cs`)
+- **Testcontainers.PostgreSql** — real PostgreSQL for integration tests
+- **Microsoft.AspNetCore.Mvc.Testing** — WebApplicationFactory for API tests
+- **MassTransit.Testing** — InMemory test harness for message assertions
 
 ## Test Class Organization
 
@@ -167,7 +172,93 @@ public class OrderFaker
 ```bash
 dotnet test                                    # All tests
 dotnet test --filter "FullyQualifiedName~Domain"  # Domain tests only
+dotnet test --filter "FullyQualifiedName!~Integration"  # Exclude integration (needs Docker)
 dotnet test --configuration Release --collect:"XPlat Code Coverage"  # With coverage
 ```
 
 Coverage threshold: **80%** (enforced in CI).
+
+## Property-Based Testing (FsCheck — C#)
+
+Use FsCheck for testing correctness properties — universal statements that must hold for all valid inputs.
+
+```csharp
+using FsCheck;
+using FsCheck.Xunit;
+
+[Property(MaxTest = 100, DisplayName = "Feature: template-architecture-gaps, Property N: Title")]
+public Property BatchRetrieval_RespectsMaxSize()
+{
+    return Prop.ForAll(
+        Arb.Default.PositiveInt().Filter(n => n.Item <= 1000),
+        batchSize =>
+        {
+            // Arrange: generate messages
+            // Act: query with batch size
+            // Assert: result.Count <= batchSize
+            return (result.Count <= batchSize.Item).Label($"Got {result.Count} > {batchSize.Item}");
+        });
+}
+```
+
+Rules:
+- Use `[Property]` attribute from `FsCheck.Xunit` (not `[Fact]`)
+- Set `MaxTest = 100` minimum
+- Include `DisplayName` with format: `"Feature: {feature-name}, Property N: {title}"`
+- Return `Property` type, use `Prop.ForAll` with generators
+- Use `.Label()` for descriptive failure messages
+- Test against in-memory DbContext for persistence properties
+- Test against `DefaultHttpContext` for middleware properties
+
+### Frontend Property Tests (fast-check — TypeScript)
+
+```typescript
+import { fc } from '@fast-check/vitest';
+import { describe, expect } from 'vitest';
+
+// Feature: template-architecture-gaps, Property 13: ProblemDetails Field Error Display
+describe('ProblemDetails field error display', () => {
+  fc.test.prop([problemDetailsArbitrary])('renders errors for every field key', (problemDetails) => {
+    // Arrange: render component with generated ProblemDetails
+    // Assert: each field key has at least one visible error
+  });
+});
+```
+
+Rules:
+- Use `fast-check` with Vitest
+- 100 iterations minimum
+- Comment tag: `// Feature: {feature-name}, Property N: {title}`
+- Generate arbitrary valid/invalid inputs to prove universal properties
+
+## Integration Testing (WebApplicationFactory + Testcontainers)
+
+Integration tests exercise the full request pipeline with a real database:
+
+```csharp
+[Collection("Integration")]
+public class PlaceOrderIntegrationTests : IntegrationTestBase
+{
+    public PlaceOrderIntegrationTests(OrdersWebApplicationFactory factory) : base(factory) { }
+
+    [Fact]
+    public async Task PlaceOrder_WithValidPayload_Returns201AndPersistsOrder()
+    {
+        var request = new { customerId = Guid.NewGuid(), lines = new[] { ... } };
+        var response = await Client.PostAsJsonAsync("/api/orders", request);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+}
+```
+
+The `OrdersWebApplicationFactory`:
+- Replaces PostgreSQL with Testcontainers PostgreSQL container
+- Replaces MassTransit with InMemory test harness (for message assertions)
+- Bypasses JWT authentication with a test handler that always succeeds
+- Resets database between test classes
+
+Rules:
+- Integration tests live in `Orders.Integration.Tests`
+- All test classes use `[Collection("Integration")]` to share the factory
+- Inherit from `IntegrationTestBase` which provides `Client` and `Factory`
+- These tests require Docker Desktop running locally

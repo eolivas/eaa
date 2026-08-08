@@ -27,5 +27,24 @@ public sealed class OutboxMessageEntityTypeConfiguration : IEntityTypeConfigurat
 
         builder.Property(m => m.ProcessedAt)
             .IsRequired(false);
+
+        builder.Property(m => m.RetryCount)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(m => m.FailedAt)
+            .IsRequired(false);
+
+        builder.Property(m => m.FailureReason)
+            .IsRequired(false);
+
+        builder.Property(m => m.CorrelationId)
+            .IsRequired(false)
+            .HasMaxLength(36);
+
+        // Filtered index for polling query: unprocessed messages that haven't failed
+        builder.HasIndex(m => m.ProcessedAt)
+            .HasDatabaseName("IX_outbox_messages_ProcessedAt_Polling")
+            .HasFilter("\"FailedAt\" IS NULL");
     }
 }

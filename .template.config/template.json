@@ -59,16 +59,25 @@
             "src/Orders.Application/Interfaces/IOrderWriter.cs",
             "src/Orders.Infrastructure/Persistence/EfOrderRepository.cs",
             "src/Orders.Infrastructure/Persistence/OrderEntityTypeConfiguration.cs",
-            "src/Orders.Infrastructure/Persistence/OrdersDbContext.cs",
+            "src/Orders.Infrastructure/Messaging/OrderPlacedConsumer.cs",
+            "src/Orders.Infrastructure/Messaging/MassTransitEventPublisher.cs",
             "src/Orders.Infrastructure/Caching/**",
-            "src/Orders.Infrastructure/Messaging/**",
             "src/Orders.Infrastructure/Specifications/**",
+            "src/Orders.Infrastructure/Migrations/**",
             "tests/Orders.Domain.Tests/OrderTests.cs",
             "tests/Orders.Domain.Tests/OrderFaker.cs",
             "tests/Orders.Domain.Tests/PricingServiceTests.cs",
             "tests/Orders.Domain.Tests/OrderRepositoryContractTests.cs",
             "tests/Orders.Application.Tests/PlaceOrderHandlerTests.cs",
-            "tests/Orders.Infrastructure.Tests/EfOrderRepositoryContractTests.cs"
+            "tests/Orders.Infrastructure.Tests/EfOrderRepositoryContractTests.cs",
+            "tests/Orders.Infrastructure.Tests/InMemoryOrderRepositoryContractTests.cs",
+            "tests/Orders.Infrastructure.Tests/Messaging/CorrelationIdPropagationTests.cs",
+            "tests/Orders.Infrastructure.Tests/Outbox/**",
+            "tests/Orders.Api.Tests/Validation/**",
+            "tests/Orders.Api.Tests/Cors/**",
+            "tests/Orders.Api.Tests/RateLimiting/**",
+            "tests/Orders.Integration.Tests/PlaceOrderIntegrationTests.cs",
+            "tests/Orders.Integration.Tests/HealthCheckTests.cs"
           ]
         }
       ]
