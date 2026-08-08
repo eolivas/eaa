@@ -150,17 +150,17 @@ This project includes 11 steering files in `.kiro/steering/` that guide AI-assis
 
 | # | Skill | What It Guides |
 |---|-------|----------------|
-| 01 | [Clean Architecture Layer Placement](`.kiro/steering/01-clean-architecture-layer-placement.md`) | Where new code goes (Domain vs Application vs Infrastructure vs Api) and the dependency rule |
-| 02 | [DDD Aggregate & Entity Creation](`.kiro/steering/02-ddd-aggregate-entity-creation.md`) | Static factory methods, private setters, strongly-typed IDs, domain events, invariant enforcement |
-| 03 | [CQRS Command/Query Scaffolding](`.kiro/steering/03-cqrs-command-query-scaffolding.md`) | MediatR commands, queries, handlers, FluentValidation, pipeline behaviours, DTOs |
-| 04 | [MassTransit Consumer & Event Publishing](`.kiro/steering/04-masstransit-consumer-event-publishing.md`) | Domain events, outbox pattern (retry/dead-letter/retention), consumer creation, correlation ID propagation |
-| 05 | [Minimal API Endpoint Conventions](`.kiro/steering/05-minimal-api-endpoint-conventions.md`) | Route groups, authorization, rate limiting, ISender dispatch, HTTP status codes, health checks |
-| 06 | [EF Core Entity Configuration](`.kiro/steering/06-efcore-entity-configuration.md`) | Value conversions, owned entities, PropertyAccessMode.Field, snake_case table naming |
-| 07 | [Testing Conventions](`.kiro/steering/07-testing-conventions.md`) | xUnit, FsCheck property tests, fast-check (frontend), integration tests (Testcontainers), architecture tests |
-| 08 | [Conventional Commits & PR Standards](`.kiro/steering/08-conventional-commits-pr-standards.md`) | Commit format, type/scope, breaking changes, PR template, 400-line diff limit |
-| 09 | [React Feature Module](`.kiro/steering/09-react-feature-module.md`) | Feature folder structure, TanStack Query hooks, Zustand stores, error handling, ErrorBoundary |
-| 10 | [Docker & CI/CD Awareness](`.kiro/steering/10-docker-cicd-awareness.md`) | docker-compose services (including observability stack), CI pipeline stages, EF migrations validation |
-| 11 | [Middleware, Security & Observability](`.kiro/steering/11-middleware-security-observability.md`) | Middleware pipeline order, security headers, correlation IDs, rate limiting, CORS, health checks, OpenTelemetry |
+| 01 | [Clean Architecture Layer Placement](.kiro/steering/01-clean-architecture-layer-placement.md) | Where new code goes (Domain vs Application vs Infrastructure vs Api) and the dependency rule |
+| 02 | [DDD Aggregate & Entity Creation](.kiro/steering/02-ddd-aggregate-entity-creation.md) | Static factory methods, private setters, strongly-typed IDs, domain events, invariant enforcement |
+| 03 | [CQRS Command/Query Scaffolding](.kiro/steering/03-cqrs-command-query-scaffolding.md) | MediatR commands, queries, handlers, FluentValidation, pipeline behaviours, DTOs |
+| 04 | [MassTransit Consumer & Event Publishing](.kiro/steering/04-masstransit-consumer-event-publishing.md) | Domain events, outbox pattern (retry/dead-letter/retention), consumer creation, correlation ID propagation |
+| 05 | [Minimal API Endpoint Conventions](.kiro/steering/05-minimal-api-endpoint-conventions.md) | Route groups, authorization, rate limiting, ISender dispatch, HTTP status codes, health checks |
+| 06 | [EF Core Entity Configuration](.kiro/steering/06-efcore-entity-configuration.md) | Value conversions, owned entities, PropertyAccessMode.Field, snake_case table naming |
+| 07 | [Testing Conventions](.kiro/steering/07-testing-conventions.md) | xUnit, FsCheck property tests, fast-check (frontend), integration tests (Testcontainers), architecture tests |
+| 08 | [Conventional Commits & PR Standards](.kiro/steering/08-conventional-commits-pr-standards.md) | Commit format, type/scope, breaking changes, PR template, 400-line diff limit |
+| 09 | [React Feature Module](.kiro/steering/09-react-feature-module.md) | Feature folder structure, TanStack Query hooks, Zustand stores, error handling, ErrorBoundary |
+| 10 | [Docker & CI/CD Awareness](.kiro/steering/10-docker-cicd-awareness.md) | docker-compose services (including observability stack), CI pipeline stages, EF migrations validation |
+| 11 | [Middleware, Security & Observability](.kiro/steering/11-middleware-security-observability.md) | Middleware pipeline order, security headers, correlation IDs, rate limiting, CORS, health checks, OpenTelemetry |
 
 ## Commit Conventions
 
