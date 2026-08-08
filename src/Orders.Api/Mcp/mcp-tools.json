@@ -1,37 +1,36 @@
 {
   "tools": [
     {
-      "name": "get_order",
-      "description": "Retrieves an order by its ID.",
+      "name": "get_resource",
+      "description": "Retrieves a resource by its ID. Replace with your domain-specific tool.",
       "inputSchema": {
         "type": "object",
         "properties": {
-          "orderId": {
+          "id": {
             "type": "string",
             "format": "uuid",
-            "description": "The order ID (UUID)."
+            "description": "The resource ID (UUID)."
           }
         },
-        "required": ["orderId"]
+        "required": ["id"]
       }
     },
     {
-      "name": "place_order",
-      "description": "Places a new order for a customer.",
+      "name": "create_resource",
+      "description": "Creates a new resource. Replace with your domain-specific tool.",
       "inputSchema": {
         "type": "object",
         "properties": {
-          "customerId": {
+          "name": {
             "type": "string",
-            "format": "uuid",
-            "description": "The customer ID (UUID)."
+            "description": "The resource name."
           },
-          "linesJson": {
+          "dataJson": {
             "type": "string",
-            "description": "JSON array of order lines. Each line: {\"productId\": \"uuid\", \"quantity\": int, \"unitPrice\": decimal, \"currency\": \"string\"}."
+            "description": "JSON payload with resource-specific fields."
           }
         },
-        "required": ["customerId", "linesJson"]
+        "required": ["name"]
       }
     }
   ]

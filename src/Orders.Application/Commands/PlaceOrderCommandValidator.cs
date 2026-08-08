@@ -3,7 +3,8 @@ using FluentValidation;
 namespace Orders.Application.Commands;
 
 /// <summary>
-/// Validates PlaceOrderCommand ensuring required fields are present and order lines are valid.
+/// Validates the creation command ensuring required fields and child items are valid.
+/// Demonstrates: FluentValidation integration with the MediatR validation pipeline behaviour.
 /// </summary>
 public class PlaceOrderCommandValidator : AbstractValidator<PlaceOrderCommand>
 {

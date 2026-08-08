@@ -2,17 +2,12 @@ using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Orders.Api.Extensions;
-using Orders.Application.Commands;
-using Orders.Application.DTOs;
-using Orders.Application.Queries;
-using Orders.Domain.Exceptions;
-
-using CommandOrderLineDto = Orders.Application.Commands.OrderLineDto;
 
 namespace Orders.Api.Endpoints;
 
 /// <summary>
 /// Minimal API endpoint definitions for the Orders resource.
+/// Replace with your domain-specific endpoints after scaffolding.
 /// </summary>
 public static class OrdersEndpoints
 {
@@ -25,67 +20,48 @@ public static class OrdersEndpoints
             .RequireAuthorization()
             .RequireRateLimiting(RateLimitingServiceCollectionExtensions.PolicyName);
 
-        group.MapPost("/", async (PlaceOrderRequest request, ISender sender) =>
+        group.MapPost("/", (CreateRequest request, ISender sender) =>
         {
-            var command = new PlaceOrderCommand
-            {
-                CustomerId = request.CustomerId,
-                Lines = request.Lines.Select(l => new CommandOrderLineDto
-                {
-                    ProductId = l.ProductId,
-                    Quantity = l.Quantity,
-                    UnitPrice = l.UnitPrice,
-                    Currency = l.Currency
-                }).ToList()
-            };
+            // TODO: Replace with your domain command
+            // var command = new CreateYourEntityCommand { ... };
+            // var id = await sender.Send(command);
+            // return Results.Created($"/api/orders/{id}", new { id });
 
-            var id = await sender.Send(command);
-
-            return Results.Created($"/api/orders/{id.Value}", new { id = id.Value });
+            return Results.StatusCode(StatusCodes.Status501NotImplemented);
         })
-        .WithName("PlaceOrder")
-        .WithSummary("Places a new order")
+        .WithName("Create")
+        .WithSummary("Creates a new resource")
         .Produces(StatusCodes.Status201Created)
         .Produces(StatusCodes.Status400BadRequest)
         .WithOpenApi();
 
-        group.MapGet("/{id:guid}", async (Guid id, ISender sender) =>
+        group.MapGet("/{id:guid}", (Guid id, ISender sender) =>
         {
-            var order = await sender.Send(new GetOrderQuery(id));
+            // TODO: Replace with your domain query
+            // var result = await sender.Send(new GetYourEntityQuery(id));
+            // return result is not null ? Results.Ok(result) : Results.NotFound();
 
-            return order is not null
-                ? Results.Ok(order)
-                : Results.NotFound();
+            return Results.StatusCode(StatusCodes.Status501NotImplemented);
         })
-        .WithName("GetOrder")
-        .WithSummary("Gets an order by ID")
-        .Produces<OrderDto>(StatusCodes.Status200OK)
+        .WithName("GetById")
+        .WithSummary("Gets a resource by ID")
+        .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status404NotFound)
         .WithOpenApi();
 
-        group.MapDelete("/{id:guid}", async (Guid id, [FromBody] CancelOrderRequest? request, ISender sender) =>
+        group.MapDelete("/{id:guid}", (Guid id, ISender sender) =>
         {
-            try
-            {
-                var command = new CancelOrderCommand
-                {
-                    OrderId = id,
-                    Reason = request?.Reason ?? string.Empty
-                };
+            // TODO: Replace with your domain command
+            // var command = new DeleteYourEntityCommand { Id = id };
+            // await sender.Send(command);
+            // return Results.NoContent();
 
-                await sender.Send(command);
-
-                return Results.NoContent();
-            }
-            catch (OrderDomainException)
-            {
-                return Results.Conflict();
-            }
+            return Results.StatusCode(StatusCodes.Status501NotImplemented);
         })
-        .WithName("CancelOrder")
-        .WithSummary("Cancels an existing order")
+        .WithName("Delete")
+        .WithSummary("Deletes a resource by ID")
         .Produces(StatusCodes.Status204NoContent)
-        .Produces(StatusCodes.Status409Conflict)
+        .Produces(StatusCodes.Status404NotFound)
         .WithOpenApi();
 
         return endpoints;
@@ -93,7 +69,17 @@ public static class OrdersEndpoints
 }
 
 /// <summary>
-/// Request body for placing a new order.
+/// Example request body. Replace with your domain-specific properties.
+/// </summary>
+public record CreateRequest
+{
+    public Guid Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+}
+
+/// <summary>
+/// Request body for creating a resource with line items.
+/// Used by validation tests. Replace with your domain-specific request model.
 /// </summary>
 public record PlaceOrderRequest
 {
@@ -102,7 +88,7 @@ public record PlaceOrderRequest
 }
 
 /// <summary>
-/// Represents a single line in a place order request.
+/// Represents a single line item in a creation request.
 /// </summary>
 public record PlaceOrderLineRequest
 {
@@ -113,7 +99,7 @@ public record PlaceOrderLineRequest
 }
 
 /// <summary>
-/// Request body for cancelling an order.
+/// Request body for cancelling/deleting a resource.
 /// </summary>
 public record CancelOrderRequest
 {

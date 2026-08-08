@@ -8,8 +8,7 @@ namespace Orders.Architecture.Tests;
 
 /// <summary>
 /// Architecture enforcement tests that verify Clean Architecture dependency rules
-/// are respected across all layers.
-/// Validates: Requirements 9.4
+/// are respected across all layers. These tests work generically for any project name.
 /// </summary>
 public class CleanArchitectureTests
 {
@@ -25,9 +24,10 @@ public class CleanArchitectureTests
     [Fact]
     public void Domain_should_not_depend_on_Infrastructure()
     {
+        var infraNamespace = InfrastructureAssembly.GetName().Name!;
         var result = Types.InAssembly(DomainAssembly)
             .ShouldNot()
-            .HaveDependencyOn("Orders.Infrastructure")
+            .HaveDependencyOn(infraNamespace)
             .GetResult();
 
         Assert.True(result.IsSuccessful,
@@ -37,9 +37,10 @@ public class CleanArchitectureTests
     [Fact]
     public void Domain_should_not_depend_on_Api()
     {
+        var apiNamespace = DomainAssembly.GetName().Name!.Replace(".Domain", ".Api");
         var result = Types.InAssembly(DomainAssembly)
             .ShouldNot()
-            .HaveDependencyOn("Orders.Api")
+            .HaveDependencyOn(apiNamespace)
             .GetResult();
 
         Assert.True(result.IsSuccessful,
@@ -49,9 +50,10 @@ public class CleanArchitectureTests
     [Fact]
     public void Application_should_not_depend_on_Infrastructure()
     {
+        var infraNamespace = InfrastructureAssembly.GetName().Name!;
         var result = Types.InAssembly(ApplicationAssembly)
             .ShouldNot()
-            .HaveDependencyOn("Orders.Infrastructure")
+            .HaveDependencyOn(infraNamespace)
             .GetResult();
 
         Assert.True(result.IsSuccessful,
@@ -61,9 +63,10 @@ public class CleanArchitectureTests
     [Fact]
     public void Application_should_not_depend_on_Api()
     {
+        var apiNamespace = ApplicationAssembly.GetName().Name!.Replace(".Application", ".Api");
         var result = Types.InAssembly(ApplicationAssembly)
             .ShouldNot()
-            .HaveDependencyOn("Orders.Api")
+            .HaveDependencyOn(apiNamespace)
             .GetResult();
 
         Assert.True(result.IsSuccessful,
@@ -73,9 +76,10 @@ public class CleanArchitectureTests
     [Fact]
     public void Infrastructure_should_not_depend_on_Api()
     {
+        var apiNamespace = InfrastructureAssembly.GetName().Name!.Replace(".Infrastructure", ".Api");
         var result = Types.InAssembly(InfrastructureAssembly)
             .ShouldNot()
-            .HaveDependencyOn("Orders.Api")
+            .HaveDependencyOn(apiNamespace)
             .GetResult();
 
         Assert.True(result.IsSuccessful,

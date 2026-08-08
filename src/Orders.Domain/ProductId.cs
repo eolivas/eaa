@@ -1,7 +1,8 @@
 namespace Orders.Domain;
 
 /// <summary>
-/// Strongly-typed identifier for a Product.
+/// Strongly-typed identifier for a referenced entity.
+/// Rename to match your domain concept.
 /// </summary>
 public readonly record struct ProductId(Guid Value)
 {

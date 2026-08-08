@@ -3,17 +3,17 @@ using Orders.Domain;
 namespace Orders.Application.Interfaces;
 
 /// <summary>
-/// Write-side operations for orders (ISP: separated from read and export concerns).
+/// Write-side operations for the aggregate (ISP: separated from read concerns).
 /// </summary>
 public interface IOrderWriter
 {
     /// <summary>
-    /// Places a new order for the specified customer with the given lines.
+    /// Creates a new aggregate instance.
     /// </summary>
     Task<OrderId> PlaceOrder(CustomerId customerId, IReadOnlyList<OrderLine> lines, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Cancels an existing order.
+    /// Cancels an existing aggregate.
     /// </summary>
     Task CancelOrder(OrderId orderId, string reason, CancellationToken cancellationToken = default);
 }

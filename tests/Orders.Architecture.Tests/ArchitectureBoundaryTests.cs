@@ -11,7 +11,6 @@ namespace Orders.Architecture.Tests;
 /// <summary>
 /// Architecture boundary tests that enforce strict isolation rules
 /// between layers in the Clean Architecture.
-/// Validates: Requirements 12.1, 12.2, 12.3, 12.4, 12.5
 /// </summary>
 public class ArchitectureBoundaryTests
 {
@@ -30,12 +29,10 @@ public class ArchitectureBoundaryTests
     [Fact]
     public void Domain_Should_Have_Zero_PackageReferences()
     {
-        // Navigate from test assembly output to the Domain .csproj
-        // Test assembly is at: tests/Orders.Architecture.Tests/bin/Debug/net8.0/
-        // Domain csproj is at: src/Orders.Domain/Orders.Domain.csproj
         var testAssemblyDir = Path.GetDirectoryName(typeof(ArchitectureBoundaryTests).Assembly.Location)!;
         var solutionRoot = Path.GetFullPath(Path.Combine(testAssemblyDir, "..", "..", "..", "..", ".."));
-        var domainCsprojPath = Path.Combine(solutionRoot, "src", "Orders.Domain", "Orders.Domain.csproj");
+        var domainProjectName = DomainAssembly.GetName().Name!;
+        var domainCsprojPath = Path.Combine(solutionRoot, "src", domainProjectName, $"{domainProjectName}.csproj");
 
         Assert.True(File.Exists(domainCsprojPath),
             $"Domain .csproj not found at: {domainCsprojPath}");
@@ -79,15 +76,12 @@ public class ArchitectureBoundaryTests
             .GetResult();
 
         Assert.True(result.IsSuccessful,
-            "Application layer must not reference Microsoft.EntityFrameworkCore namespace. " +
-            "Violating types: " +
-            string.Join(", ", result.FailingTypeNames ?? Enumerable.Empty<string>()));
+            "Application layer must not reference Microsoft.EntityFrameworkCore namespace.");
     }
 
     [Fact]
     public void Repository_Interfaces_Implemented_Only_In_Infrastructure()
     {
-        // Find all interfaces in Domain matching I*Repository pattern
         var repositoryInterfaces = Types.InAssembly(DomainAssembly)
             .That()
             .AreInterfaces()
@@ -101,7 +95,6 @@ public class ArchitectureBoundaryTests
 
         var violatingTypes = new List<string>();
 
-        // Check Domain, Application, and Api assemblies for implementations
         var disallowedAssemblies = new (System.Reflection.Assembly Assembly, string LayerName)[]
         {
             (DomainAssembly, "Domain"),

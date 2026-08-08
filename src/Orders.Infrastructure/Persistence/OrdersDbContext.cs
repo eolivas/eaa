@@ -7,9 +7,9 @@ using Orders.Infrastructure.Messaging;
 namespace Orders.Infrastructure.Persistence;
 
 /// <summary>
-/// EF Core DbContext for the Orders bounded context.
+/// EF Core DbContext for the bounded context.
 /// Intercepts domain events during SaveChangesAsync and persists them as OutboxMessage rows
-/// within the same transaction as the aggregate changes.
+/// within the same transaction as the aggregate changes (transactional outbox pattern).
 /// </summary>
 public class OrdersDbContext : DbContext
 {
@@ -39,7 +39,6 @@ public class OrdersDbContext : DbContext
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        // Collect domain events from all tracked aggregate roots before saving.
         var aggregatesWithEvents = ChangeTracker.Entries<AggregateRoot<OrderId>>()
             .Where(e => e.Entity.DomainEvents.Count > 0)
             .Select(e => e.Entity)
@@ -49,10 +48,8 @@ public class OrdersDbContext : DbContext
             .SelectMany(a => a.DomainEvents)
             .ToList();
 
-        // Capture the correlation ID from the current context (if available).
         var correlationId = _correlationIdAccessor?.CorrelationId;
 
-        // Convert each domain event to an OutboxMessage row.
         foreach (var domainEvent in domainEvents)
         {
             var outboxMessage = new OutboxMessage
@@ -68,10 +65,8 @@ public class OrdersDbContext : DbContext
             OutboxMessages.Add(outboxMessage);
         }
 
-        // Save both aggregate changes and outbox messages in one transaction.
         var result = await base.SaveChangesAsync(cancellationToken);
 
-        // Clear domain events after successful save.
         foreach (var aggregate in aggregatesWithEvents)
         {
             aggregate.ClearDomainEvents();

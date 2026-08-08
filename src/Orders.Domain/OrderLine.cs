@@ -4,7 +4,8 @@ using Orders.Domain.Exceptions;
 namespace Orders.Domain;
 
 /// <summary>
-/// Represents a single line item within an order.
+/// Child entity within the aggregate. Replace with your domain's line item or child concept.
+/// Demonstrates: entity with factory method, invariant enforcement, computed properties.
 /// </summary>
 public class OrderLine : Entity<OrderLineId>
 {
@@ -16,13 +17,8 @@ public class OrderLine : Entity<OrderLineId>
     private OrderLine() { }
 
     /// <summary>
-    /// Creates a new <see cref="OrderLine"/> with the specified product, quantity, and unit price.
+    /// Factory method enforcing child entity invariants.
     /// </summary>
-    /// <param name="productId">The product identifier.</param>
-    /// <param name="quantity">The quantity ordered. Must be greater than zero.</param>
-    /// <param name="unitPrice">The price per unit.</param>
-    /// <returns>A new <see cref="OrderLine"/> instance.</returns>
-    /// <exception cref="OrderDomainException">Thrown when <paramref name="quantity"/> is less than or equal to zero.</exception>
     public static OrderLine Create(ProductId productId, int quantity, Money unitPrice)
     {
         if (quantity <= 0)

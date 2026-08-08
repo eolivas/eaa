@@ -5,8 +5,9 @@ using Orders.Domain.Exceptions;
 namespace Orders.Application.Commands;
 
 /// <summary>
-/// Handles the CancelOrderCommand by retrieving the order,
-/// applying the cancellation, and persisting the change.
+/// Handles the cancellation command by retrieving the aggregate,
+/// applying the state transition, and persisting the change.
+/// Demonstrates: command handler with not-found and domain exception handling.
 /// </summary>
 public class CancelOrderHandler : IRequestHandler<CancelOrderCommand, Unit>
 {

@@ -1,7 +1,7 @@
 namespace Orders.Domain;
 
 /// <summary>
-/// Strongly-typed identifier for the Order aggregate.
+/// Strongly-typed identifier for the aggregate root.
 /// </summary>
 public readonly record struct OrderId(Guid Value)
 {

@@ -202,7 +202,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/openapi/v1.json", "Orders API v1");
+        options.SwaggerEndpoint("/openapi/v1.json", "API v1");
     });
 }
 
@@ -219,7 +219,7 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
     ResponseWriter = WriteHealthCheckResponse
 }).AllowAnonymous();
 
-app.MapGet("/", () => "Orders API");
+app.MapGet("/", () => "Orders API - Replace with your service name");
 app.MapOrdersEndpoints();
 app.UseMiddleware<McpRateLimiterMiddleware>();
 app.MapMcp();

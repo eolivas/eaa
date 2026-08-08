@@ -5,7 +5,8 @@ using Orders.Domain;
 namespace Orders.Application.Queries;
 
 /// <summary>
-/// Handles <see cref="GetOrderQuery"/> by retrieving the order from the repository.
+/// Handles the get query by retrieving the aggregate from the repository
+/// and mapping it to a DTO.
 /// </summary>
 public class GetOrderHandler : IRequestHandler<GetOrderQuery, OrderDto?>
 {

@@ -5,8 +5,9 @@ using Orders.Domain.Events;
 namespace Orders.Infrastructure.Messaging;
 
 /// <summary>
-/// Consumes <see cref="OrderPlacedEvent"/> messages and logs receipt (PoC stub).
-/// In a production system this would trigger notification delivery.
+/// Consumes domain events from the message broker and performs side effects.
+/// Replace with your domain-specific event consumer logic.
+/// Demonstrates: MassTransit consumer pattern with structured logging and correlation.
 /// </summary>
 public sealed class OrderPlacedConsumer : IConsumer<OrderPlacedEvent>
 {

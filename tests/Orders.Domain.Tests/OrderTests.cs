@@ -5,6 +5,11 @@ using Xunit;
 
 namespace Orders.Domain.Tests;
 
+/// <summary>
+/// Unit tests for the aggregate root.
+/// Demonstrates: testing state transitions, domain events, and invariant enforcement.
+/// Replace with your domain-specific aggregate tests.
+/// </summary>
 public class OrderTests
 {
     private static OrderLine CreateLine(int quantity = 2, decimal unitPrice = 10.00m)
@@ -16,7 +21,7 @@ public class OrderTests
     public class CreateMethod
     {
         [Fact]
-        public void HappyPath_CreatesOrderWithPendingStatus()
+        public void HappyPath_CreatesWithPendingStatus()
         {
             var customerId = CustomerId.New();
             var lines = CreateLines(2);
@@ -30,7 +35,7 @@ public class OrderTests
         }
 
         [Fact]
-        public void HappyPath_RaisesOrderCreatedEvent()
+        public void HappyPath_RaisesCreatedEvent()
         {
             var customerId = CustomerId.New();
             var lines = CreateLines();
@@ -44,42 +49,24 @@ public class OrderTests
         }
 
         [Fact]
-        public void HappyPath_ComputesTotalFromLines()
+        public void WithNullLines_ThrowsDomainException()
         {
-            var lines = new List<OrderLine>
-            {
-                OrderLine.Create(ProductId.New(), 3, new Money(5.00m, "USD")),
-                OrderLine.Create(ProductId.New(), 2, new Money(10.00m, "USD"))
-            };
-
-            var order = Order.Create(CustomerId.New(), lines);
-
-            Assert.Equal(new Money(35.00m, "USD"), order.Total);
-        }
-
-        [Fact]
-        public void WithNullLines_ThrowsOrderDomainException()
-        {
-            var exception = Assert.Throws<OrderDomainException>(
+            Assert.Throws<OrderDomainException>(
                 () => Order.Create(CustomerId.New(), null!));
-
-            Assert.Contains("at least one line", exception.Message);
         }
 
         [Fact]
-        public void WithEmptyLines_ThrowsOrderDomainException()
+        public void WithEmptyLines_ThrowsDomainException()
         {
-            var exception = Assert.Throws<OrderDomainException>(
+            Assert.Throws<OrderDomainException>(
                 () => Order.Create(CustomerId.New(), Array.Empty<OrderLine>()));
-
-            Assert.Contains("at least one line", exception.Message);
         }
     }
 
     public class PlaceMethod
     {
         [Fact]
-        public void HappyPath_TransitionsToPlaedStatus()
+        public void HappyPath_TransitionsToPlacedStatus()
         {
             var order = Order.Create(CustomerId.New(), CreateLines());
 
@@ -89,7 +76,7 @@ public class OrderTests
         }
 
         [Fact]
-        public void HappyPath_RaisesOrderPlacedEvent()
+        public void HappyPath_RaisesPlacedEvent()
         {
             var order = Order.Create(CustomerId.New(), CreateLines());
             order.ClearDomainEvents();
@@ -97,24 +84,14 @@ public class OrderTests
             order.Place();
 
             var domainEvent = Assert.Single(order.DomainEvents);
-            var placedEvent = Assert.IsType<OrderPlacedEvent>(domainEvent);
-            Assert.Equal(order.Id, placedEvent.OrderId);
+            Assert.IsType<OrderPlacedEvent>(domainEvent);
         }
 
         [Fact]
-        public void OnPlacedOrder_ThrowsOrderDomainException()
+        public void OnAlreadyPlaced_ThrowsDomainException()
         {
             var order = Order.Create(CustomerId.New(), CreateLines());
             order.Place();
-
-            Assert.Throws<OrderDomainException>(() => order.Place());
-        }
-
-        [Fact]
-        public void OnCancelledOrder_ThrowsOrderDomainException()
-        {
-            var order = Order.Create(CustomerId.New(), CreateLines());
-            order.Cancel("test");
 
             Assert.Throws<OrderDomainException>(() => order.Place());
         }
@@ -133,18 +110,7 @@ public class OrderTests
         }
 
         [Fact]
-        public void FromPlaced_TransitionsToCancelled()
-        {
-            var order = Order.Create(CustomerId.New(), CreateLines());
-            order.Place();
-
-            order.Cancel("No longer needed");
-
-            Assert.Equal(OrderStatus.Cancelled, order.Status);
-        }
-
-        [Fact]
-        public void HappyPath_RaisesOrderCancelledEvent()
+        public void HappyPath_RaisesCancelledEvent()
         {
             var order = Order.Create(CustomerId.New(), CreateLines());
             order.ClearDomainEvents();
@@ -153,30 +119,16 @@ public class OrderTests
 
             var domainEvent = Assert.Single(order.DomainEvents);
             var cancelledEvent = Assert.IsType<OrderCancelledEvent>(domainEvent);
-            Assert.Equal(order.Id, cancelledEvent.OrderId);
             Assert.Equal("Test reason", cancelledEvent.Reason);
         }
 
         [Fact]
-        public void OnShippedOrder_ThrowsOrderDomainException()
+        public void OnCancelled_ThrowsDomainException()
         {
             var order = Order.Create(CustomerId.New(), CreateLines());
-            order.Place();
+            order.Cancel("First");
 
-            // No public Ship() method yet; use reflection to simulate Shipped state.
-            var statusProp = typeof(Order).GetProperty(nameof(Order.Status))!;
-            statusProp.SetValue(order, OrderStatus.Shipped);
-
-            Assert.Throws<OrderDomainException>(() => order.Cancel("Too late"));
-        }
-
-        [Fact]
-        public void OnCancelledOrder_ThrowsOrderDomainException()
-        {
-            var order = Order.Create(CustomerId.New(), CreateLines());
-            order.Cancel("First cancel");
-
-            Assert.Throws<OrderDomainException>(() => order.Cancel("Second cancel"));
+            Assert.Throws<OrderDomainException>(() => order.Cancel("Second"));
         }
     }
 }

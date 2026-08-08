@@ -3,9 +3,9 @@ using System.Net;
 namespace Orders.Infrastructure.Http;
 
 /// <summary>
-/// Typed HTTP client for communicating with the Inventory service.
-/// Registered via AddHttpClient with AddStandardResilienceHandler for retry and circuit-breaker behaviour.
-/// When all retries are exhausted, throws <see cref="ServiceUnavailableException"/> indicating HTTP 503.
+/// Typed HTTP client for communicating with an external service.
+/// Demonstrates: Resilient HTTP client pattern with retry and circuit-breaker via AddStandardResilienceHandler.
+/// Replace the endpoint and logic with your domain-specific external service call.
 /// </summary>
 public sealed class InventoryHttpClient
 {
@@ -17,14 +17,8 @@ public sealed class InventoryHttpClient
     }
 
     /// <summary>
-    /// Checks inventory availability for the specified product.
+    /// Example external service call. Replace with your domain-specific operation.
     /// </summary>
-    /// <param name="productId">The product identifier to check.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>True if the product is available in inventory; otherwise false.</returns>
-    /// <exception cref="ServiceUnavailableException">
-    /// Thrown when the Inventory service is unreachable after all retries are exhausted.
-    /// </exception>
     public async Task<bool> CheckInventoryAsync(Guid productId, CancellationToken cancellationToken = default)
     {
         try
@@ -44,13 +38,12 @@ public sealed class InventoryHttpClient
         catch (HttpRequestException ex)
         {
             throw new ServiceUnavailableException(
-                "Inventory service is unavailable. All retries have been exhausted.", ex);
+                "External service is unavailable. All retries have been exhausted.", ex);
         }
         catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
         {
-            // Timeout scenario — the resilience handler's timeout fired
             throw new ServiceUnavailableException(
-                "Inventory service is unavailable. Request timed out after all retries.", ex);
+                "External service is unavailable. Request timed out after all retries.", ex);
         }
     }
 }

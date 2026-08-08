@@ -1,7 +1,7 @@
 namespace Orders.Domain;
 
 /// <summary>
-/// Strongly-typed identifier for an OrderLine entity.
+/// Strongly-typed identifier for a child entity.
 /// </summary>
 public readonly record struct OrderLineId(Guid Value)
 {
