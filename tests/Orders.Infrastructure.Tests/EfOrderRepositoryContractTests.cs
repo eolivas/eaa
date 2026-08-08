@@ -4,9 +4,8 @@ using Orders.Domain.Tests;
 namespace Orders.Infrastructure.Tests;
 
 /// <summary>
-/// In-memory implementation of <see cref="IOrderRepository"/> used to demonstrate
+/// In-memory implementation of the repository interface used to demonstrate
 /// the Liskov Substitution Principle contract tests.
-/// Any implementation that satisfies the interface contract will pass these tests.
 /// </summary>
 public sealed class InMemoryOrderRepository : IOrderRepository
 {
@@ -38,9 +37,9 @@ public sealed class InMemoryOrderRepository : IOrderRepository
 }
 
 /// <summary>
-/// Concrete contract tests for <see cref="InMemoryOrderRepository"/>.
+/// Concrete contract tests for the in-memory repository implementation.
 /// Extends the shared abstract test class to verify this implementation
-/// satisfies the <see cref="IOrderRepository"/> contract (Liskov Substitution Principle).
+/// satisfies the repository interface contract (Liskov Substitution Principle).
 /// </summary>
 public class InMemoryOrderRepositoryContractTests
     : OrderRepositoryContractTests<InMemoryOrderRepository>

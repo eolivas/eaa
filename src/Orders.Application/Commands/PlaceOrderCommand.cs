@@ -4,7 +4,8 @@ using Orders.Domain;
 namespace Orders.Application.Commands;
 
 /// <summary>
-/// Command to place a new order for a customer.
+/// Command to create a new aggregate instance.
+/// Replace with your domain-specific creation command.
 /// </summary>
 public record PlaceOrderCommand : IRequest<OrderId>
 {
@@ -13,7 +14,7 @@ public record PlaceOrderCommand : IRequest<OrderId>
 }
 
 /// <summary>
-/// DTO representing a single order line in the PlaceOrderCommand.
+/// DTO representing a child item in the creation command.
 /// </summary>
 public record OrderLineDto
 {

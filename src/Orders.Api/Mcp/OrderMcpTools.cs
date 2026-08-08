@@ -10,8 +10,9 @@ using CommandOrderLineDto = Orders.Application.Commands.OrderLineDto;
 namespace Orders.Api.Mcp;
 
 /// <summary>
-/// MCP (Model Context Protocol) tools exposed by the Orders API.
-/// Provides get_order and place_order capabilities for AI agents.
+/// MCP (Model Context Protocol) tools exposed by the API.
+/// Provides get and create capabilities for AI agents.
+/// Replace with your domain-specific MCP tools.
 /// </summary>
 [McpServerToolType]
 public class OrderMcpTools
@@ -23,49 +24,44 @@ public class OrderMcpTools
     };
 
     /// <summary>
-    /// Retrieves an order by its identifier.
-    /// Returns the serialised order DTO or a not-found message.
+    /// Retrieves a resource by its identifier.
     /// </summary>
-    [McpServerTool(Name = "get_order"), Description("Retrieves an order by its ID.")]
+    [McpServerTool(Name = "get_order"), Description("Retrieves a resource by its ID.")]
     public static async Task<string> GetOrder(
         ISender sender,
-        [Description("The order ID (UUID).")] string orderId,
+        [Description("The resource ID (UUID).")] string orderId,
         CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(orderId, out var parsedId))
         {
-            return $"No order found with ID {orderId}.";
+            return $"No resource found with ID {orderId}.";
         }
 
         var order = await sender.Send(new GetOrderQuery(parsedId), cancellationToken);
 
         if (order is null)
         {
-            return $"No order found with ID {orderId}.";
+            return $"No resource found with ID {orderId}.";
         }
 
         return JsonSerializer.Serialize(order, JsonOptions);
     }
 
     /// <summary>
-    /// Places a new order for a customer.
-    /// Deserialises the lines JSON, dispatches PlaceOrderCommand via MediatR,
-    /// and returns the new order ID on success.
+    /// Creates a new resource.
     /// </summary>
-    [McpServerTool(Name = "place_order"), Description("Places a new order for a customer.")]
+    [McpServerTool(Name = "place_order"), Description("Creates a new resource.")]
     public static async Task<string> PlaceOrder(
         ISender sender,
-        [Description("The customer ID (UUID).")] string customerId,
-        [Description("JSON array of order lines. Each line: {\"productId\": \"uuid\", \"quantity\": int, \"unitPrice\": decimal, \"currency\": \"string\"}.")] string linesJson,
+        [Description("The owner/customer ID (UUID).")] string customerId,
+        [Description("JSON array of line items. Each item: {\"productId\": \"uuid\", \"quantity\": int, \"unitPrice\": decimal, \"currency\": \"string\"}.")] string linesJson,
         CancellationToken cancellationToken)
     {
-        // Parse customerId
         if (!Guid.TryParse(customerId, out var parsedCustomerId))
         {
             return "Invalid customerId format. Expected a valid UUID.";
         }
 
-        // Deserialise order lines
         List<CommandOrderLineDto>? lines;
         try
         {
@@ -73,7 +69,7 @@ public class OrderMcpTools
 
             if (lines is null || lines.Count == 0)
             {
-                return "Invalid linesJson: expected a non-empty JSON array of order lines.";
+                return "Invalid linesJson: expected a non-empty JSON array of line items.";
             }
         }
         catch (JsonException ex)
@@ -81,7 +77,6 @@ public class OrderMcpTools
             return $"Invalid linesJson format: {ex.Message}";
         }
 
-        // Dispatch command
         try
         {
             var command = new PlaceOrderCommand
@@ -91,7 +86,7 @@ public class OrderMcpTools
             };
 
             var orderId = await sender.Send(command, cancellationToken);
-            return $"Order placed successfully. Order ID: {orderId.Value}";
+            return $"Resource created successfully. ID: {orderId.Value}";
         }
         catch (OrderDomainException ex)
         {

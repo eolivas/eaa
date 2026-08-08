@@ -6,8 +6,9 @@ using Orders.Domain;
 namespace Orders.Application.Commands;
 
 /// <summary>
-/// Handles the PlaceOrderCommand by creating and placing an order,
-/// persisting it, and publishing domain events.
+/// Handles the creation command by building and persisting the aggregate,
+/// then publishing domain events.
+/// Demonstrates: CQRS command handler pattern with observability.
 /// </summary>
 public class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, OrderId>
 {

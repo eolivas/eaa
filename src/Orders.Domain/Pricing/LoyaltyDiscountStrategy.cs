@@ -1,7 +1,8 @@
 namespace Orders.Domain.Pricing;
 
 /// <summary>
-/// Applies a loyalty discount (5% off) to the given price.
+/// Example discount strategy: applies a loyalty discount (5% off).
+/// Replace with your domain-specific discount strategies.
 /// </summary>
 public sealed class LoyaltyDiscountStrategy : IDiscountStrategy
 {

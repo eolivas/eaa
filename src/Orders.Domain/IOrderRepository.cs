@@ -1,8 +1,8 @@
 namespace Orders.Domain;
 
 /// <summary>
-/// Repository interface for the Order aggregate.
-/// Implementation resides in the Infrastructure layer.
+/// Repository interface for the aggregate root.
+/// Implementation resides in the Infrastructure layer (Dependency Inversion Principle).
 /// </summary>
 public interface IOrderRepository
 {

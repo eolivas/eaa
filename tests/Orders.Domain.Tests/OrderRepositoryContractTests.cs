@@ -4,9 +4,9 @@ using Xunit;
 namespace Orders.Domain.Tests;
 
 /// <summary>
-/// Shared abstract contract tests for <see cref="IOrderRepository"/>.
+/// Shared abstract contract tests for the repository interface.
 /// Each implementation must extend this class and pass all tests,
-/// enforcing the Liskov Substitution Principle across repository implementations.
+/// enforcing the Liskov Substitution Principle across implementations.
 /// </summary>
 public abstract class OrderRepositoryContractTests<TImpl> where TImpl : IOrderRepository
 {
@@ -18,14 +18,11 @@ public abstract class OrderRepositoryContractTests<TImpl> where TImpl : IOrderRe
     [Fact]
     public async Task GetByIdAsync_WhenNotFound_ReturnsNull()
     {
-        // Arrange
         var repository = CreateRepository();
         var nonExistentId = OrderId.New();
 
-        // Act
         var result = await repository.GetByIdAsync(nonExistentId);
 
-        // Assert
         Assert.Null(result);
     }
 }

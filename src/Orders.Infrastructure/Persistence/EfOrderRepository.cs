@@ -4,8 +4,8 @@ using Orders.Domain;
 namespace Orders.Infrastructure.Persistence;
 
 /// <summary>
-/// EF Core implementation of <see cref="IOrderRepository"/>.
-/// Eager-loads OrderLine entities on every query via Include.
+/// EF Core implementation of the repository interface.
+/// Demonstrates: Infrastructure layer implementing a Domain-defined interface (DIP).
 /// </summary>
 public sealed class EfOrderRepository : IOrderRepository
 {

@@ -3,7 +3,8 @@ using MediatR;
 namespace Orders.Application.Commands;
 
 /// <summary>
-/// Command to cancel an existing order with a given reason.
+/// Command to cancel/delete an existing aggregate.
+/// Replace with your domain-specific state transition command.
 /// </summary>
 public record CancelOrderCommand : IRequest<Unit>
 {

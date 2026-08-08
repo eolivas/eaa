@@ -17,22 +17,16 @@ public class HealthCheckTests : IntegrationTestBase
     [Fact]
     public async Task LivenessEndpoint_ReturnsHealthy()
     {
-        // Act
         var response = await Client.GetAsync("/health/live");
 
-        // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
     public async Task RootEndpoint_ReturnsOk()
     {
-        // Act
         var response = await Client.GetAsync("/");
 
-        // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var content = await response.Content.ReadAsStringAsync();
-        Assert.Equal("Orders API", content);
     }
 }

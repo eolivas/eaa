@@ -3,7 +3,8 @@ using Orders.Domain;
 namespace Orders.Application.DTOs;
 
 /// <summary>
-/// Data transfer object representing an order.
+/// Data transfer object for the aggregate root.
+/// Replace properties with your domain-specific fields.
 /// </summary>
 public record OrderDto(
     Guid Id,
@@ -14,10 +15,8 @@ public record OrderDto(
     IReadOnlyList<OrderLineDto> Lines)
 {
     /// <summary>
-    /// Maps a domain Order to an OrderDto.
+    /// Maps the domain aggregate to its DTO representation.
     /// </summary>
-    /// <param name="order">The domain order. May be null.</param>
-    /// <returns>An <see cref="OrderDto"/> or null if the order is null.</returns>
     public static OrderDto? From(Order? order)
     {
         if (order is null)

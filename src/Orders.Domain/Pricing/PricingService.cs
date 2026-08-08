@@ -16,7 +16,6 @@ public sealed class PricingService
 
     /// <summary>
     /// Applies all registered discount strategies sequentially via Aggregate.
-    /// The result is guaranteed to be ≤ the input base price.
     /// </summary>
     public Money Calculate(Money basePrice)
     {
@@ -24,7 +23,6 @@ public sealed class PricingService
 
         var result = _strategies.Aggregate(basePrice, (current, strategy) => strategy.Apply(current));
 
-        // Ensure the result never exceeds the original base price
         return result.Amount > basePrice.Amount
             ? basePrice
             : result;

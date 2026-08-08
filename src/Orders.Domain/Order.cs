@@ -5,8 +5,8 @@ using Orders.Domain.Exceptions;
 namespace Orders.Domain;
 
 /// <summary>
-/// The Order aggregate root. Manages the lifecycle of an order from creation through
-/// placement, shipping, or cancellation.
+/// The Orders aggregate root. Replace with your domain entity and business rules.
+/// Demonstrates: aggregate root pattern, domain events, state transitions, and invariant enforcement.
 /// </summary>
 public class Order : AggregateRoot<OrderId>
 {
@@ -26,12 +26,9 @@ public class Order : AggregateRoot<OrderId>
     private Order() { }
 
     /// <summary>
-    /// Creates a new Order in Pending status.
+    /// Factory method for creating a new aggregate instance.
+    /// Enforces invariants: must have at least one line item.
     /// </summary>
-    /// <param name="customerId">The customer placing the order.</param>
-    /// <param name="lines">The order lines. Must not be null or empty.</param>
-    /// <returns>A new <see cref="Order"/> instance.</returns>
-    /// <exception cref="OrderDomainException">Thrown when <paramref name="lines"/> is null or empty.</exception>
     public static Order Create(CustomerId customerId, IReadOnlyList<OrderLine> lines)
     {
         if (lines is null || lines.Count == 0)
@@ -51,9 +48,9 @@ public class Order : AggregateRoot<OrderId>
     }
 
     /// <summary>
-    /// Places the order. Only valid when status is Pending.
+    /// Transitions the aggregate to the next state.
+    /// Demonstrates state machine pattern with domain event emission.
     /// </summary>
-    /// <exception cref="OrderDomainException">Thrown when the order is not in Pending status.</exception>
     public void Place()
     {
         if (Status != OrderStatus.Pending)
@@ -64,10 +61,8 @@ public class Order : AggregateRoot<OrderId>
     }
 
     /// <summary>
-    /// Cancels the order with a reason. Cannot cancel shipped or already-cancelled orders.
+    /// Cancels the aggregate with a reason. Demonstrates guarded state transitions.
     /// </summary>
-    /// <param name="reason">The cancellation reason.</param>
-    /// <exception cref="OrderDomainException">Thrown when the order is shipped or already cancelled.</exception>
     public void Cancel(string reason)
     {
         if (Status is OrderStatus.Shipped or OrderStatus.Cancelled)

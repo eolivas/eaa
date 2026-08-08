@@ -1,8 +1,8 @@
 namespace Orders.Domain;
 
 /// <summary>
-/// Represents the lifecycle status of an Order.
-/// Valid transitions: Pending → Placed, Placed → Shipped, Pending → Cancelled, Placed → Cancelled.
+/// Represents the lifecycle status of the aggregate.
+/// Replace with your domain-specific states.
 /// </summary>
 public enum OrderStatus
 {

@@ -1,7 +1,8 @@
 namespace Orders.Domain.Pricing;
 
 /// <summary>
-/// Applies a seasonal discount (10% off) to the given price.
+/// Example discount strategy: applies a seasonal discount (10% off).
+/// Replace with your domain-specific discount strategies.
 /// </summary>
 public sealed class SeasonalDiscountStrategy : IDiscountStrategy
 {
