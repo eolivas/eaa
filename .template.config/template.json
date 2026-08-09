@@ -37,13 +37,13 @@
         ".git/**"
       ],
       "rename": {
-        "src/Orders.Api/Program.Scaffold.cs": "src/Orders.Api/Program.cs",
-        "Orders.Template.sln": "Orders.sln"
+        "src/Orders.Api/Program.Scaffold.cs": "src/Orders.Api/Program.cs"
       },
       "modifiers": [
         {
           "exclude": [
-            "Orders.sln",
+            "Orders.Full.sln",
+            "Orders.Template.sln",
             "template-pack.csproj",
             "src/Orders.Domain/Order.cs",
             "src/Orders.Domain/OrderId.cs",
@@ -88,10 +88,7 @@
             "tests/Orders.Architecture.Tests/ArchitectureBoundaryTests.cs",
             "tests/Orders.Api.Tests/**",
             "tests/Orders.Integration.Tests/**",
-            "tests/Orders.Template.Tests/**",
-            ".kiro/steering/**",
-            "observability/**",
-            "docs/**"
+            "tests/Orders.Template.Tests/**"
           ]
         }
       ]
