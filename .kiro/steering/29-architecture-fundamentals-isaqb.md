@@ -1,5 +1,5 @@
 ---
-inclusion: auto
+inclusion: manual
 ---
 
 # Architecture Fundamentals (ISAQB-Aligned)

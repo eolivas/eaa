@@ -1,5 +1,6 @@
 ---
-inclusion: auto
+inclusion: fileMatch
+fileMatchPattern: "**/*Options.cs,**/*Settings.cs,**/appsettings*.json,**/Program.cs"
 ---
 
 # Application Configuration & Options Pattern

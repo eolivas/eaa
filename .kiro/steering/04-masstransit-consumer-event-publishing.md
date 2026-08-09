@@ -1,5 +1,6 @@
 ---
-inclusion: auto
+inclusion: fileMatch
+fileMatchPattern: "**/*Consumer*.cs,**/*Event*.cs,**/*IntegrationEvent*.cs"
 ---
 
 # MassTransit Consumer & Event Publishing

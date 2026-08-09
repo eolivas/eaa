@@ -1,5 +1,6 @@
 ---
-inclusion: auto
+inclusion: fileMatch
+fileMatchPattern: "**/*Configuration.cs,**/*DbContext*.cs,**/Migrations/**"
 ---
 
 # EF Core Entity Configuration
