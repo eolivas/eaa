@@ -4,7 +4,7 @@ inclusion: auto
 
 # EF Core Entity Configuration
 
-All entity type configurations live in `src/Orders.Infrastructure/Persistence/`. Follow these patterns for new entities.
+All entity type configurations live in `src/{SolutionName}.Infrastructure/Persistence/`. Follow these patterns for new entities.
 
 ## Configuration Class Structure
 
@@ -13,13 +13,13 @@ One `IEntityTypeConfiguration<T>` per aggregate root:
 ```csharp
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Orders.Domain;
+using {SolutionName}.Domain;
 
-namespace Orders.Infrastructure.Persistence;
+namespace {SolutionName}.Infrastructure.Persistence;
 
-public sealed class OrderEntityTypeConfiguration : IEntityTypeConfiguration<Order>
+public sealed class {Entity}EntityTypeConfiguration : IEntityTypeConfiguration<{Entity}>
 {
-    public void Configure(EntityTypeBuilder<Order> builder)
+    public void Configure(EntityTypeBuilder<{Entity}> builder)
     {
         // Configuration here
     }
@@ -36,8 +36,8 @@ Rules:
 Use **snake_case** for table names:
 
 ```csharp
-builder.ToTable("orders");
-// builder.ToTable("order_lines");
+builder.ToTable("{entities}");
+// builder.ToTable("{entity}_lines");
 // builder.ToTable("outbox_messages");
 ```
 
@@ -50,7 +50,7 @@ builder.HasKey(o => o.Id);
 builder.Property(o => o.Id)
     .HasConversion(
         id => id.Value,
-        value => new OrderId(value));
+        value => new {Entity}Id(value));
 
 builder.Property(o => o.CustomerId)
     .HasConversion(
@@ -84,10 +84,10 @@ For child entity collections accessed via private backing fields:
 
 ```csharp
 // Map the collection
-builder.OwnsMany<OrderLine>("_lines", lineBuilder =>
+builder.OwnsMany<{Entity}Line>("_lines", lineBuilder =>
 {
-    lineBuilder.ToTable("order_lines");
-    lineBuilder.WithOwner().HasForeignKey("OrderId");
+    lineBuilder.ToTable("{entity}_lines");
+    lineBuilder.WithOwner().HasForeignKey("{Entity}Id");
     lineBuilder.HasKey(l => l.Id);
     // ...configure properties...
 });
@@ -123,14 +123,14 @@ builder.Property(o => o.Status)
 ## DbContext Registration
 
 ```csharp
-public class OrdersDbContext : DbContext
+public class {SolutionName}DbContext : DbContext
 {
-    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<{Entity}> {Entities} => Set<{Entity}>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(OrdersDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof({SolutionName}DbContext).Assembly);
     }
 }
 ```
@@ -144,4 +144,4 @@ public class OrdersDbContext : DbContext
 5. Map child collections with `OwnsMany` + `PropertyAccessMode.Field`
 6. Ignore computed properties
 7. Store enums as strings
-8. Add `DbSet<T>` to `OrdersDbContext` if it's a new aggregate root
+8. Add `DbSet<T>` to `{SolutionName}DbContext` if it's a new aggregate root

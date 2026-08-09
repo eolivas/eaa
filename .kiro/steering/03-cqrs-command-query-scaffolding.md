@@ -4,7 +4,7 @@ inclusion: auto
 
 # CQRS Command/Query Scaffolding
 
-This project uses MediatR for CQRS with FluentValidation and pipeline behaviours in `src/Orders.Application/`.
+This project uses MediatR for CQRS with FluentValidation and pipeline behaviours in `src/{SolutionName}.Application/`.
 
 ## Commands
 
@@ -12,18 +12,18 @@ This project uses MediatR for CQRS with FluentValidation and pipeline behaviours
 
 ```csharp
 using MediatR;
-using Orders.Domain;
+using {SolutionName}.Domain;
 
-namespace Orders.Application.Commands;
+namespace {SolutionName}.Application.Commands;
 
-public record PlaceOrderCommand : IRequest<OrderId>
+public record Place{Entity}Command : IRequest<{Entity}Id>
 {
     public Guid CustomerId { get; init; }
-    public IReadOnlyList<OrderLineDto> Lines { get; init; } = [];
+    public IReadOnlyList<{Entity}LineDto> Lines { get; init; } = [];
 }
 
 // Inline DTO for command-specific input
-public record OrderLineDto
+public record {Entity}LineDto
 {
     public Guid ProductId { get; init; }
     public int Quantity { get; init; }
@@ -43,15 +43,15 @@ Rules:
 ```csharp
 using FluentValidation;
 
-namespace Orders.Application.Commands;
+namespace {SolutionName}.Application.Commands;
 
-public class PlaceOrderCommandValidator : AbstractValidator<PlaceOrderCommand>
+public class Place{Entity}CommandValidator : AbstractValidator<Place{Entity}Command>
 {
-    public PlaceOrderCommandValidator()
+    public Place{Entity}CommandValidator()
     {
         RuleFor(x => x.Lines)
             .NotEmpty()
-            .WithMessage("An order must contain at least one line.");
+            .WithMessage("A {entity} must contain at least one line.");
     }
 }
 ```
@@ -66,23 +66,23 @@ Rules:
 
 ```csharp
 using MediatR;
-using Orders.Application.Interfaces;
-using Orders.Domain;
+using {SolutionName}.Application.Interfaces;
+using {SolutionName}.Domain;
 
-namespace Orders.Application.Commands;
+namespace {SolutionName}.Application.Commands;
 
-public class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, OrderId>
+public class Place{Entity}Handler : IRequestHandler<Place{Entity}Command, {Entity}Id>
 {
-    private readonly IOrderRepository _repo;
+    private readonly I{Entity}Repository _repo;
     private readonly IApplicationEventPublisher _publisher;
 
-    public PlaceOrderHandler(IOrderRepository repo, IApplicationEventPublisher publisher)
+    public Place{Entity}Handler(I{Entity}Repository repo, IApplicationEventPublisher publisher)
     {
         _repo = repo;
         _publisher = publisher;
     }
 
-    public async Task<OrderId> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
+    public async Task<{Entity}Id> Handle(Place{Entity}Command request, CancellationToken cancellationToken)
     {
         // 1. Map DTOs to domain objects
         // 2. Create/load aggregate and invoke domain behaviour
@@ -105,35 +105,35 @@ Rules:
 
 ```csharp
 using MediatR;
-using Orders.Application.DTOs;
+using {SolutionName}.Application.DTOs;
 
-namespace Orders.Application.Queries;
+namespace {SolutionName}.Application.Queries;
 
-public record GetOrderQuery(Guid OrderId) : IRequest<OrderDto?>;
+public record Get{Entity}Query(Guid {Entity}Id) : IRequest<{Entity}Dto?>;
 ```
 
 Rules:
 - Use positional `record` parameters for simple queries
 - Return DTOs (from `DTOs/`), never domain entities
 - Naming: `Get{Noun}Query` or `List{Noun}Query`
-- Nullable return (`OrderDto?`) when the item might not exist
+- Nullable return (`{Entity}Dto?`) when the item might not exist
 
 ### Query Handler (`Queries/{Name}Handler.cs`)
 
 ```csharp
-public class GetOrderHandler : IRequestHandler<GetOrderQuery, OrderDto?>
+public class Get{Entity}Handler : IRequestHandler<Get{Entity}Query, {Entity}Dto?>
 {
-    private readonly IOrderRepository _repo;
+    private readonly I{Entity}Repository _repo;
 
-    public GetOrderHandler(IOrderRepository repo)
+    public Get{Entity}Handler(I{Entity}Repository repo)
     {
         _repo = repo;
     }
 
-    public async Task<OrderDto?> Handle(GetOrderQuery request, CancellationToken cancellationToken)
+    public async Task<{Entity}Dto?> Handle(Get{Entity}Query request, CancellationToken cancellationToken)
     {
-        var order = await _repo.GetByIdAsync(new OrderId(request.OrderId), cancellationToken);
-        return OrderDto.From(order);
+        var entity = await _repo.GetByIdAsync(new {Entity}Id(request.{Entity}Id), cancellationToken);
+        return {Entity}Dto.From(entity);
     }
 }
 ```
@@ -141,22 +141,22 @@ public class GetOrderHandler : IRequestHandler<GetOrderQuery, OrderDto?>
 ## Response DTOs (`DTOs/`)
 
 ```csharp
-public record OrderDto(
+public record {Entity}Dto(
     Guid Id,
     Guid CustomerId,
     string Status,
     decimal TotalAmount,
     string TotalCurrency,
-    IReadOnlyList<OrderLineDto> Lines)
+    IReadOnlyList<{Entity}LineDto> Lines)
 {
-    public static OrderDto? From(Order? order) { /* mapping logic */ }
+    public static {Entity}Dto? From({Entity}? entity) { /* mapping logic */ }
 }
 ```
 
 Rules:
 - Use positional `record` constructors
 - Include a static `From(DomainEntity?)` mapping method
-- Place in `src/Orders.Application/DTOs/`
+- Place in `src/{SolutionName}.Application/DTOs/`
 
 ## Pipeline Behaviours (`Behaviours/`)
 
@@ -172,7 +172,7 @@ cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(YourBehaviour<,>));
 ## File Placement Summary
 
 ```
-src/Orders.Application/
+src/{SolutionName}.Application/
 ├── Commands/
 │   ├── {Verb}{Noun}Command.cs       (command + inline DTOs)
 │   ├── {Verb}{Noun}CommandValidator.cs

@@ -4,7 +4,7 @@ inclusion: auto
 
 # Minimal API Endpoint Conventions
 
-All HTTP endpoints are defined as Minimal APIs in `src/Orders.Api/Endpoints/`. Follow these conventions when adding new endpoints.
+All HTTP endpoints are defined as Minimal APIs in `src/{SolutionName}.Api/Endpoints/`. Follow these conventions when adding new endpoints.
 
 ## Endpoint Group Structure
 
@@ -13,11 +13,11 @@ Each resource gets its own static class with a `Map{Resource}Endpoints` extensio
 ```csharp
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Orders.Application.Commands;
-using Orders.Application.DTOs;
-using Orders.Application.Queries;
+using {SolutionName}.Application.Commands;
+using {SolutionName}.Application.DTOs;
+using {SolutionName}.Application.Queries;
 
-namespace Orders.Api.Endpoints;
+namespace {SolutionName}.Api.Endpoints;
 
 public static class InvoicesEndpoints
 {
@@ -35,7 +35,7 @@ public static class InvoicesEndpoints
 
 Register in `Program.cs`:
 ```csharp
-app.MapOrdersEndpoints();
+app.Map{Entity}Endpoints();
 app.MapInvoicesEndpoints(); // Add new resource
 ```
 
@@ -44,12 +44,12 @@ app.MapInvoicesEndpoints(); // Add new resource
 Endpoint groups that handle public traffic should apply rate limiting:
 
 ```csharp
-var group = endpoints.MapGroup("/api/invoices")
+var group = endpoints.MapGroup("/api/{entities}")
     .RequireAuthorization()
-    .RequireRateLimiting("orders-api");  // Fixed-window rate limit
+    .RequireRateLimiting("{solution-name}-api");  // Fixed-window rate limit
 ```
 
-The `"orders-api"` rate limit policy is configured in `AddOrdersRateLimiter()` extension. When exceeded, returns HTTP 429 with `Retry-After` header.
+The `"{solution-name}-api"` rate limit policy is configured in `Add{SolutionName}RateLimiter()` extension. When exceeded, returns HTTP 429 with `Retry-After` header.
 
 ## Health Check & Operational Endpoints
 
@@ -75,8 +75,8 @@ Do NOT add auth or rate limiting to health check endpoints.
 Every endpoint MUST include:
 ```csharp
 group.MapPost("/", async (...) => { ... })
-    .WithName("PlaceOrder")           // Unique operation name (PascalCase)
-    .WithSummary("Places a new order") // Short description
+    .WithName("Place{Entity}")           // Unique operation name (PascalCase)
+    .WithSummary("Places a new {entity}") // Short description
     .Produces(StatusCodes.Status201Created)
     .Produces(StatusCodes.Status400BadRequest)
     .WithOpenApi();                    // OpenAPI metadata generation
@@ -91,7 +91,7 @@ Inject `ISender sender` (not `IMediator`) and dispatch:
 ```csharp
 group.MapGet("/{id:guid}", async (Guid id, ISender sender) =>
 {
-    var result = await sender.Send(new GetOrderQuery(id));
+    var result = await sender.Send(new Get{Entity}Query(id));
     return result is not null ? Results.Ok(result) : Results.NotFound();
 });
 ```
@@ -114,13 +114,13 @@ group.MapGet("/{id:guid}", async (Guid id, ISender sender) =>
 Co-locate request/response records at the bottom of the endpoint file:
 
 ```csharp
-public record PlaceOrderRequest
+public record Place{Entity}Request
 {
     public Guid CustomerId { get; init; }
-    public IReadOnlyList<PlaceOrderLineRequest> Lines { get; init; } = [];
+    public IReadOnlyList<Place{Entity}LineRequest> Lines { get; init; } = [];
 }
 
-public record PlaceOrderLineRequest
+public record Place{Entity}LineRequest
 {
     public Guid ProductId { get; init; }
     public int Quantity { get; init; }
@@ -128,7 +128,7 @@ public record PlaceOrderLineRequest
     public string Currency { get; init; } = string.Empty;
 }
 
-public record CancelOrderRequest
+public record Cancel{Entity}Request
 {
     public string Reason { get; init; } = string.Empty;
 }
@@ -148,7 +148,7 @@ try
     await sender.Send(command);
     return Results.NoContent();
 }
-catch (OrderDomainException)
+catch ({Entity}DomainException)
 {
     return Results.Conflict();
 }
