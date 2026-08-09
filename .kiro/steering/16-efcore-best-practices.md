@@ -1,5 +1,6 @@
 ---
-inclusion: auto
+inclusion: fileMatch
+fileMatchPattern: "**/*Repository*.cs,**/*DbContext*.cs,**/Migrations/**,**/*Configuration.cs"
 ---
 
 # EF Core Best Practices

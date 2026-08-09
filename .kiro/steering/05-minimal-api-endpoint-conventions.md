@@ -1,5 +1,6 @@
 ---
-inclusion: auto
+inclusion: fileMatch
+fileMatchPattern: "**/*Endpoint*.cs,**/*Module*.cs,**/Program.cs"
 ---
 
 # Minimal API Endpoint Conventions

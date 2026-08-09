@@ -1,5 +1,6 @@
 ---
-inclusion: auto
+inclusion: fileMatch
+fileMatchPattern: "**/Dockerfile,**/docker-compose*,**/.github/workflows/**"
 ---
 
 # Docker & CI/CD Awareness

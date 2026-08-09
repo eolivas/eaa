@@ -1,5 +1,6 @@
 ---
-inclusion: auto
+inclusion: fileMatch
+fileMatchPattern: "**/*Mapper*.cs,**/*Dto*.cs,**/*Response*.cs,**/*Request*.cs"
 ---
 
 # Object Mapping Conventions

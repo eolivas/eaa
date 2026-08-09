@@ -130,7 +130,56 @@ ADRs document significant architectural choices and their rationale. Located in 
 
 ## Steering Files Overview
 
-Steering files provide AI-agent conventions and development guidelines. Located in `.kiro/steering/`. They are automatically included as context when working with Kiro.
+Steering files provide AI-agent conventions and development guidelines. Located in `.kiro/steering/`. They supply context to Kiro so it follows the project's patterns and conventions.
+
+### Inclusion Modes
+
+Each steering file declares an `inclusion` mode in its YAML frontmatter that controls **when** it gets loaded into context:
+
+| Mode | Frontmatter | Behavior | Token Impact |
+|------|-------------|----------|--------------|
+| **auto** | `inclusion: auto` | Loaded on every interaction | Always consumed |
+| **fileMatch** | `inclusion: fileMatch` + `fileMatchPattern: "glob"` | Loaded only when a matching file is open | Conditional |
+| **manual** | `inclusion: manual` | Loaded only when explicitly referenced with `#` in chat | On-demand |
+
+**Example frontmatter:**
+
+```yaml
+---
+inclusion: fileMatch
+fileMatchPattern: "**/*Command*.cs,**/*Query*.cs,**/*Handler*.cs"
+---
+```
+
+### Why This Matters
+
+Loading all steering files on every interaction wastes context tokens. This project uses a tiered strategy:
+
+- **auto** — Core conventions that apply to almost every task (architecture layers, DDD patterns, commit standards).
+- **fileMatch** — Domain-specific guides loaded when you're working on relevant code (EF Core rules appear only when editing repositories, React rules only in `frontend/`).
+- **manual** — Reference material for occasional deep-dives (design patterns, scaling strategies, SOLID principles). Reference them with `#12-solid-principles` in chat when needed.
+
+### How to Use Manual Steering Files
+
+In Kiro's chat input, type `#` followed by the steering file name to include it:
+
+```
+#25-caching-best-practices
+```
+
+This loads the file into context for that interaction only, keeping your baseline token budget lean.
+
+### Current Configuration
+
+| Inclusion | Files |
+|-----------|-------|
+| **auto** | `01` (Clean Architecture), `02` (DDD), `08` (Commits & PRs) |
+| **fileMatch** | `03` (CQRS), `04` (MassTransit), `05` (Minimal API), `06` (EF Core Config), `07` (Testing), `09` (React), `10` (Docker/CI), `11` (Middleware), `16` (EF Core), `17` (Event-Driven), `20` (Logging), `21` (Configuration), `24` (Mapping) |
+| **manual** | `12` (SOLID), `13` (Design Patterns), `14` (Code Review), `15` (Microservices), `18` (Arch Principles), `19` (Testing Strategy), `22` (REST API), `23` (Code Smells), `25` (Caching), `26` (Async), `27` (Security), `28` (Scaling), `29` (iSAQB) |
+
+---
+
+### Full Steering File Reference
 
 | # | File | Purpose |
 |---|------|---------|

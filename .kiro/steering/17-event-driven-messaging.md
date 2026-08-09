@@ -1,5 +1,6 @@
 ---
-inclusion: auto
+inclusion: fileMatch
+fileMatchPattern: "**/*Consumer*.cs,**/*Event*.cs,**/*Saga*.cs,**/*Publisher*.cs"
 ---
 
 # Event-Driven Development & Messaging Best Practices

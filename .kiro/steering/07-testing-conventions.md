@@ -1,5 +1,6 @@
 ---
-inclusion: auto
+inclusion: fileMatch
+fileMatchPattern: "**/*.Tests/**,**/*.test.*,**/*Test*.cs"
 ---
 
 # Testing Conventions

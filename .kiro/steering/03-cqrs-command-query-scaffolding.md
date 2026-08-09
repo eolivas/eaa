@@ -1,5 +1,6 @@
 ---
-inclusion: auto
+inclusion: fileMatch
+fileMatchPattern: "**/*Command*.cs,**/*Query*.cs,**/*Handler*.cs"
 ---
 
 # CQRS Command/Query Scaffolding

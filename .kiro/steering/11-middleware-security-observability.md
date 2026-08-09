@@ -1,5 +1,6 @@
 ---
-inclusion: auto
+inclusion: fileMatch
+fileMatchPattern: "**/*Middleware*.cs,**/*Extension*.cs,**/Program.cs,**/observability/**"
 ---
 
 # Middleware, Security & Observability

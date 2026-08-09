@@ -1,5 +1,5 @@
 ---
-inclusion: auto
+inclusion: manual
 ---
 
 # Architectural Principles: SoC, DRY, KISS, YAGNI
