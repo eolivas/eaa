@@ -4,7 +4,7 @@ inclusion: auto
 
 # Middleware, Security & Observability
 
-This project uses a layered middleware pipeline with security headers, correlation IDs, rate limiting, and OpenTelemetry. All middleware lives in `src/Orders.Api/Middleware/` and extensions in `src/Orders.Api/Extensions/`.
+This project uses a layered middleware pipeline with security headers, correlation IDs, rate limiting, and OpenTelemetry. All middleware lives in `src/{SolutionName}.Api/Middleware/` and extensions in `src/{SolutionName}.Api/Extensions/`.
 
 ## Middleware Pipeline Order
 
@@ -43,10 +43,10 @@ All log entries during a request include the correlation ID. It flows through th
 
 ## Rate Limiting
 
-Configured via `AddOrdersRateLimiter()` extension:
+Configured via `Add{SolutionName}RateLimiter()` extension:
 
 - **Algorithm**: Fixed-window (`Microsoft.AspNetCore.RateLimiting`)
-- **Policy name**: `"orders-api"` — applied to `/api/orders` group
+- **Policy name**: `"{solution-name}-api"` — applied to `/api/{entities}` group
 - **Partition key**: `sub` claim (authenticated) or `RemoteIpAddress` (unauthenticated)
 - **On success**: `X-RateLimit-Limit` and `X-RateLimit-Remaining` response headers
 - **On rejection**: HTTP 429 with `Retry-After` header (seconds until window resets)
@@ -106,13 +106,13 @@ builder.Services.AddOpenTelemetry()
         .AddOtlpExporter())
     .WithMetrics(mp => mp
         .AddAspNetCoreInstrumentation()
-        .AddMeter("Orders.Mcp")
+        .AddMeter("{SolutionName}.Metrics")
         .AddOtlpExporter());
 ```
 
 - Exports to OTEL Collector via OTLP gRPC (port 4317)
 - Non-fatal: if collector is unreachable, API continues serving (telemetry dropped)
-- Custom meters: register with `new Meter("Orders.Mcp")` or similar namespaced names
+- Custom meters: register with `new Meter("{SolutionName}.Metrics")` or similar namespaced names
 - Outbox metrics: `outbox.messages.processed`, `outbox.messages.failed`, `outbox.message.duration_ms`
 
 ## Input Validation
@@ -120,13 +120,13 @@ builder.Services.AddOpenTelemetry()
 Request validation happens at two levels:
 
 1. **Request body size**: Middleware rejects bodies > 1 MB with HTTP 413 (before deserialization)
-2. **FluentValidation**: `PlaceOrderCommandValidator` runs as `IPipelineBehavior` in MediatR pipeline, returns 400 with ProblemDetails `errors` dictionary
+2. **FluentValidation**: `Place{Entity}CommandValidator` runs as `IPipelineBehavior` in MediatR pipeline, returns 400 with ProblemDetails `errors` dictionary
 
 Malformed JSON is caught by ASP.NET Core's model binding and returns 400 with ProblemDetails.
 
 ## Adding New Middleware
 
-1. Create class in `src/Orders.Api/Middleware/`:
+1. Create class in `src/{SolutionName}.Api/Middleware/`:
 
 ```csharp
 public class MyCustomMiddleware

@@ -11,7 +11,7 @@ inclusion: auto
 ```
 
 - **type** — category of change (see table)
-- **scope** — area of codebase affected (e.g., `orders`, `money`, `deps`, `frontend`)
+- **scope** — area of codebase affected (e.g., `{entity}`, `money`, `deps`, `frontend`)
 - **description** — imperative mood, lowercase, no trailing period
 
 ### Commit Types
@@ -32,7 +32,7 @@ inclusion: auto
 ### Examples
 
 ```
-feat(orders): add cancellation endpoint
+feat({entity}): add cancellation endpoint
 fix(money): handle zero-amount edge case
 chore(deps): update EF Core to 8.0.x
 docs(adr): add ADR-006 for caching strategy
@@ -45,15 +45,15 @@ feat(frontend): add invoice list page
 Include a `BREAKING CHANGE:` footer in the commit body:
 
 ```
-feat(orders): change order ID from int to UUID
+feat({entity}): change {entity} ID from int to UUID
 
-BREAKING CHANGE: Order IDs are now UUIDs. All API consumers must update
+BREAKING CHANGE: {Entity} IDs are now UUIDs. All API consumers must update
 their client code to send and receive string-based IDs instead of integers.
 ```
 
 Optionally append `!` after the scope:
 ```
-feat(orders)!: change order ID from int to UUID
+feat({entity})!: change {entity} ID from int to UUID
 ```
 
 ## PR Standards

@@ -10,7 +10,7 @@ Local development uses `docker-compose.yml` with these services:
 
 | Service | Image | Ports | Purpose |
 |---------|-------|-------|---------|
-| `orders-api` | Built from `src/Orders.Api/Dockerfile` | 5000:8080 | .NET 8 API |
+| `{solution-name}-api` | Built from `src/{SolutionName}.Api/Dockerfile` | 5000:8080 | .NET 8 API |
 | `postgres` | `postgres:16` | 5432:5432 | PostgreSQL database |
 | `rabbitmq` | `rabbitmq:3.13-management` | 5672, 15672 | Message broker |
 | `frontend` | Built from `frontend/Dockerfile` | 3000:80 | React SPA (nginx, proxies /api) |
@@ -19,19 +19,19 @@ Local development uses `docker-compose.yml` with these services:
 | `prometheus` | `prom/prometheus:v2.50.0` | 9090 | Metrics query UI |
 
 ### Service Dependencies
-- `orders-api` depends on `postgres` (healthy), `rabbitmq` (healthy), and `otel-collector` (healthy)
-- `frontend` depends on `orders-api`
+- `{solution-name}-api` depends on `postgres` (healthy), `rabbitmq` (healthy), and `otel-collector` (healthy)
+- `frontend` depends on `{solution-name}-api`
 
 ### Nginx Proxy
-The frontend nginx config proxies `/api` requests to `orders-api:8080`:
+The frontend nginx config proxies `/api` requests to `{solution-name}-api:8080`:
 ```nginx
 location /api/ {
-    proxy_pass http://orders-api:8080/api/;
+    proxy_pass http://{solution-name}-api:8080/api/;
 }
 ```
 
 ### Connection Strings (Development)
-- PostgreSQL: `Host=postgres;Port=5432;Database=orders;Username=postgres;Password=postgres`
+- PostgreSQL: `Host=postgres;Port=5432;Database={solution_name};Username=postgres;Password=postgres`
 - RabbitMQ: `Host=rabbitmq;Username=guest;Password=guest`
 - OTLP: Exporter sends to `http://otel-collector:4317`
 
@@ -104,7 +104,7 @@ lint → type-check → test → build → deploy (S3 + CloudFront)
 
 | Variable | Where | Purpose |
 |----------|-------|---------|
-| `ConnectionStrings__OrdersDb` | API container | PostgreSQL connection |
+| `ConnectionStrings__{SolutionName}Db` | API container | PostgreSQL connection |
 | `RabbitMq__Host/Username/Password` | API container | Message broker |
 | `Jwt__Authority` | API container | OIDC provider URL |
 | `Jwt__Audience` | API container | Expected JWT audience |
@@ -118,7 +118,7 @@ lint → type-check → test → build → deploy (S3 + CloudFront)
 ## When Modifying Infrastructure
 
 - Update `docker-compose.yml` for local dev changes
-- Update `src/Orders.Api/Dockerfile` for API container changes
+- Update `src/{SolutionName}.Api/Dockerfile` for API container changes
 - Update `frontend/Dockerfile` for frontend container changes
 - Update `.github/workflows/ci.yml` for backend CI/CD changes
 - Update `.github/workflows/frontend-ci.yml` for frontend CI/CD changes

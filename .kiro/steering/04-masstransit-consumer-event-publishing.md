@@ -4,7 +4,7 @@ inclusion: auto
 
 # MassTransit Consumer & Event Publishing
 
-This project uses MassTransit with an outbox pattern for reliable domain event delivery. All messaging infrastructure lives in `src/Orders.Infrastructure/Messaging/`.
+This project uses MassTransit with an outbox pattern for reliable domain event delivery. All messaging infrastructure lives in `src/{SolutionName}.Infrastructure/Messaging/`.
 
 ## Architecture Overview
 
@@ -49,14 +49,14 @@ Configuration section:
 
 ## Defining a New Domain Event
 
-1. Create the event in `src/Orders.Domain/Events/`:
+1. Create the event in `src/{SolutionName}.Domain/Events/`:
 
 ```csharp
-using Orders.Domain.Common;
+using {SolutionName}.Domain.Common;
 
-namespace Orders.Domain.Events;
+namespace {SolutionName}.Domain.Events;
 
-public sealed record OrderShippedEvent(OrderId OrderId, DateTime ShippedAt) : DomainEvent;
+public sealed record {Entity}ShippedEvent({Entity}Id {Entity}Id, DateTime ShippedAt) : DomainEvent;
 ```
 
 2. Raise it from the aggregate:
@@ -64,11 +64,11 @@ public sealed record OrderShippedEvent(OrderId OrderId, DateTime ShippedAt) : Do
 ```csharp
 public void Ship()
 {
-    if (Status != OrderStatus.Placed)
-        throw new OrderDomainException("Only placed orders can be shipped.");
+    if (Status != {Entity}Status.Placed)
+        throw new {Entity}DomainException("Only placed entities can be shipped.");
 
-    Status = OrderStatus.Shipped;
-    RaiseDomainEvent(new OrderShippedEvent(Id, DateTime.UtcNow));
+    Status = {Entity}Status.Shipped;
+    RaiseDomainEvent(new {Entity}ShippedEvent(Id, DateTime.UtcNow));
 }
 ```
 
@@ -77,43 +77,43 @@ public void Ship()
 The handler publishes events after persisting:
 
 ```csharp
-await _repo.SaveAsync(order, cancellationToken);
+await _repo.SaveAsync(entity, cancellationToken);
 
-foreach (var domainEvent in order.DomainEvents)
+foreach (var domainEvent in entity.DomainEvents)
 {
     await _publisher.PublishAsync(domainEvent, cancellationToken);
 }
 
-order.ClearDomainEvents();
+entity.ClearDomainEvents();
 ```
 
 The `IApplicationEventPublisher` interface lives in `Application/Interfaces/`. The implementation (`MassTransitEventPublisher`) lives in Infrastructure.
 
 ## Creating a New Consumer
 
-Place in `src/Orders.Infrastructure/Messaging/`:
+Place in `src/{SolutionName}.Infrastructure/Messaging/`:
 
 ```csharp
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using Orders.Domain.Events;
+using {SolutionName}.Domain.Events;
 
-namespace Orders.Infrastructure.Messaging;
+namespace {SolutionName}.Infrastructure.Messaging;
 
-public sealed class OrderShippedConsumer : IConsumer<OrderShippedEvent>
+public sealed class {Entity}ShippedConsumer : IConsumer<{Entity}ShippedEvent>
 {
-    private readonly ILogger<OrderShippedConsumer> _logger;
+    private readonly ILogger<{Entity}ShippedConsumer> _logger;
 
-    public OrderShippedConsumer(ILogger<OrderShippedConsumer> logger)
+    public {Entity}ShippedConsumer(ILogger<{Entity}ShippedConsumer> logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public Task Consume(ConsumeContext<OrderShippedEvent> context)
+    public Task Consume(ConsumeContext<{Entity}ShippedEvent> context)
     {
         _logger.LogInformation(
-            "Received OrderShippedEvent for Order {OrderId}",
-            context.Message.OrderId);
+            "Received {Entity}ShippedEvent for {Entity} {EntityId}",
+            context.Message.{Entity}Id);
 
         // Process the event (send notification, update read model, etc.)
         return Task.CompletedTask;
@@ -122,7 +122,7 @@ public sealed class OrderShippedConsumer : IConsumer<OrderShippedEvent>
 ```
 
 Rules:
-- Class name: `{EventName without "Event"}Consumer` (e.g., `OrderShippedConsumer`)
+- Class name: `{EventName without "Event"}Consumer` (e.g., `{Entity}ShippedConsumer`)
 - `sealed class` implementing `IConsumer<TEvent>`
 - Inject dependencies via constructor
 - Use structured logging with message templates
@@ -181,19 +181,19 @@ The `OutboxMessage` entity and its EF configuration live in `Persistence/`.
 
 Correlation IDs flow through the entire messaging pipeline:
 1. HTTP request → `CorrelationIdMiddleware` extracts/generates `X-Correlation-Id`
-2. `ICorrelationIdAccessor` makes it available to `OrdersDbContext`
+2. `ICorrelationIdAccessor` makes it available to `{SolutionName}DbContext`
 3. `SaveChangesAsync` stores it on the `OutboxMessage.CorrelationId` column
 4. `OutboxProcessor` includes it in MassTransit message headers on publish
 5. Consumers extract it from headers and push to Serilog `LogContext`
 
 ```csharp
 // In a consumer:
-public Task Consume(ConsumeContext<OrderShippedEvent> context)
+public Task Consume(ConsumeContext<{Entity}ShippedEvent> context)
 {
     var correlationId = context.Headers.Get<string>("X-Correlation-Id");
     using (LogContext.PushProperty("CorrelationId", correlationId ?? Guid.NewGuid().ToString()))
     {
-        _logger.LogInformation("Processing OrderShippedEvent for {OrderId}", context.Message.OrderId);
+        _logger.LogInformation("Processing {Entity}ShippedEvent for {EntityId}", context.Message.{Entity}Id);
         // ...
     }
     return Task.CompletedTask;

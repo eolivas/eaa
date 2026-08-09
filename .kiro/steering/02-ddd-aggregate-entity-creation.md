@@ -4,14 +4,14 @@ inclusion: auto
 
 # DDD Aggregate & Entity Creation
 
-Follow these patterns when creating new aggregates, entities, and value objects in `src/Orders.Domain/`.
+Follow these patterns when creating new aggregates, entities, and value objects in `src/{SolutionName}.Domain/`.
 
 ## Strongly-Typed IDs
 
 Every entity and aggregate uses a strongly-typed ID implemented as a `readonly record struct`:
 
 ```csharp
-namespace Orders.Domain;
+namespace {SolutionName}.Domain;
 
 public readonly record struct ProductId(Guid Value)
 {
@@ -20,7 +20,7 @@ public readonly record struct ProductId(Guid Value)
 ```
 
 Rules:
-- Place in the root of `Orders.Domain/` (e.g., `InvoiceId.cs`)
+- Place in the root of `{SolutionName}.Domain/` (e.g., `InvoiceId.cs`)
 - Always provide a static `New()` factory method
 - Use `readonly record struct` for value semantics and zero-allocation equality
 
@@ -29,7 +29,7 @@ Rules:
 All entities inherit from `Entity<TId>`:
 
 ```csharp
-public class OrderLine : Entity<OrderLineId>
+public class {Entity}Line : Entity<{Entity}LineId>
 {
     public ProductId ProductId { get; private init; }
     public int Quantity { get; private init; }
@@ -39,7 +39,7 @@ public class OrderLine : Entity<OrderLineId>
 
 Rules:
 - Use `private init` or `private set` for all properties (no public setters)
-- Use a private parameterless constructor for EF Core: `private OrderLine() { }`
+- Use a private parameterless constructor for EF Core: `private {Entity}Line() { }`
 - Create instances via static factory methods, never public constructors
 
 ## Aggregate Root
@@ -83,7 +83,7 @@ Rules:
 - Public static `Create(...)` factory method with invariant validation
 - Private backing field `List<T>` exposed as `IReadOnlyList<T>`
 - Call `RaiseDomainEvent(...)` for state transitions
-- Throw domain-specific exceptions (e.g., `OrderDomainException`) for invariant violations
+- Throw domain-specific exceptions (e.g., `{Entity}DomainException`) for invariant violations
 
 ## Value Objects
 
@@ -108,7 +108,7 @@ public record Money
 ```
 
 Rules:
-- Place in `src/Orders.Domain/ValueObjects/`
+- Place in `src/{SolutionName}.Domain/ValueObjects/`
 - Validate in constructor, throw `ArgumentException` for invalid input
 - Provide static factory methods for common cases (e.g., `Zero()`)
 - Operator overloads where arithmetic makes sense
@@ -120,7 +120,7 @@ public sealed record InvoiceCreatedEvent(InvoiceId InvoiceId, CustomerId Custome
 ```
 
 Rules:
-- Place in `src/Orders.Domain/Events/`
+- Place in `src/{SolutionName}.Domain/Events/`
 - `sealed record` inheriting from `DomainEvent`
 - Name pattern: `{Aggregate}{PastTenseVerb}Event`
 - Carry only IDs and minimal data needed by consumers
@@ -128,13 +128,13 @@ Rules:
 ## Domain Exceptions
 
 ```csharp
-public class InvoiceDomainException : Exception
+public class {Entity}DomainException : Exception
 {
-    public InvoiceDomainException(string message) : base(message) { }
+    public {Entity}DomainException(string message) : base(message) { }
 }
 ```
 
 Rules:
-- Place in `src/Orders.Domain/Exceptions/`
-- One exception class per aggregate (or shared `OrderDomainException` style)
+- Place in `src/{SolutionName}.Domain/Exceptions/`
+- One exception class per aggregate (or shared `{Entity}DomainException` style)
 - Used for business rule violations, not infrastructure errors

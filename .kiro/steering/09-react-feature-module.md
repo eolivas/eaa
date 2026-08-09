@@ -36,22 +36,22 @@ export * from './types';
 Define all feature-specific interfaces:
 
 ```typescript
-export interface OrderLineDto {
+export interface {Entity}LineDto {
   productId: string;
   quantity: number;
   unitPrice: number;
   currency: string;
 }
 
-export interface OrderDto {
+export interface {Entity}Dto {
   id: string;
   customerId: string;
   status: string;
-  lines: OrderLineDto[];
+  lines: {Entity}LineDto[];
   total: { amount: number; currency: string };
 }
 
-export interface PlaceOrderRequest {
+export interface Place{Entity}Request {
   customerId: string;
   lines: { productId: string; quantity: number; unitPrice: number; currency: string }[];
 }
@@ -62,22 +62,22 @@ export interface PlaceOrderRequest {
 ```typescript
 import { useQuery, useMutation } from '@tanstack/react-query';
 import http from '../../../lib/http';
-import type { OrderDto, PlaceOrderRequest } from '../types';
+import type { {Entity}Dto, Place{Entity}Request } from '../types';
 
-export function useOrder(id: string) {
-  return useQuery<OrderDto>({
-    queryKey: ['orders', id],
+export function use{Entity}(id: string) {
+  return useQuery<{Entity}Dto>({
+    queryKey: ['{entities}', id],
     queryFn: async () => {
-      const response = await http.get<OrderDto>(`/orders/${id}`);
+      const response = await http.get<{Entity}Dto>(`/{entities}/${id}`);
       return response.data;
     },
   });
 }
 
-export function usePlaceOrder() {
-  return useMutation<OrderDto, Error, PlaceOrderRequest>({
-    mutationFn: async (request: PlaceOrderRequest) => {
-      const response = await http.post<OrderDto>('/orders', request);
+export function usePlace{Entity}() {
+  return useMutation<{Entity}Dto, Error, Place{Entity}Request>({
+    mutationFn: async (request: Place{Entity}Request) => {
+      const response = await http.post<{Entity}Dto>('/{entities}', request);
       return response.data;
     },
   });
@@ -94,11 +94,11 @@ Rules:
 
 ```tsx
 import { type FormEvent, useState } from 'react';
-import { usePlaceOrder } from '../api';
-import type { PlaceOrderRequest } from '../types';
+import { usePlace{Entity} } from '../api';
+import type { Place{Entity}Request } from '../types';
 
-export function PlaceOrderForm() {
-  const mutation = usePlaceOrder();
+export function Place{Entity}Form() {
+  const mutation = usePlace{Entity}();
   // ... state and handlers
 
   return (
