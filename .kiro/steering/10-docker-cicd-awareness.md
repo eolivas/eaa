@@ -10,7 +10,7 @@ Local development uses `docker-compose.yml` with these services:
 
 | Service | Image | Ports | Purpose |
 |---------|-------|-------|---------|
-| `{solution-name}-api` | Built from `src/{SolutionName}.Api/Dockerfile` | 5000:8080 | .NET 8 API |
+| `{solution-name}-api` | Built from `src/{SolutionName}.Api/Dockerfile` | 5000:8080 | .NET 8+ API |
 | `postgres` | `postgres:16` | 5432:5432 | PostgreSQL database |
 | `rabbitmq` | `rabbitmq:3.13-management` | 5672, 15672 | Message broker |
 | `frontend` | Built from `frontend/Dockerfile` | 3000:80 | React SPA (nginx, proxies /api) |
