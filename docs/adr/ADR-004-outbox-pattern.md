@@ -6,20 +6,20 @@ Accepted
 
 ## Context
 
-In the Orders service, domain events (e.g., `OrderPlacedEvent`) must be published to the message broker after a successful state change. A naive implementation — save to database, then publish to broker — creates a dual-write problem:
+In the {Entity} service, domain events (e.g., `{Entity}PlacedEvent`) must be published to the message broker after a successful state change. A naive implementation — save to database, then publish to broker — creates a dual-write problem:
 
-1. **Database succeeds, broker publish fails**: The order is persisted but downstream services (Notifications) never receive the event. The system becomes inconsistent.
+1. **Database succeeds, broker publish fails**: The {entity} is persisted but downstream services (Notifications) never receive the event. The system becomes inconsistent.
 2. **Broker publish succeeds, database fails**: The event is published but the state change is rolled back. Consumers act on phantom events.
 
 Neither distributed transactions (2PC) nor "hope-based" retry adequately solve this in a microservices context. The system needs **exactly-once semantics for the write side** (guaranteed delivery of events corresponding to persisted state changes).
 
 ## Decision
 
-We implement the **Transactional Outbox Pattern** in the Orders service Infrastructure layer:
+We implement the **Transactional Outbox Pattern** in the Infrastructure layer:
 
 1. **Outbox table**: An `outbox_messages` table (entity: `OutboxMessage`) stores pending events with columns: `Id`, `EventType`, `Payload` (JSON-serialized domain event), `OccurredAt`, and `ProcessedAt` (nullable).
 
-2. **Atomic write**: In `OrdersDbContext.SaveChangesAsync`, domain events raised by aggregates are intercepted, serialized to `OutboxMessage` rows, and inserted in the **same database transaction** as the entity state change. After save, domain events are cleared from the aggregate.
+2. **Atomic write**: In `{SolutionName}DbContext.SaveChangesAsync`, domain events raised by aggregates are intercepted, serialized to `OutboxMessage` rows, and inserted in the **same database transaction** as the entity state change. After save, domain events are cleared from the aggregate.
 
 3. **Background processor**: `OutboxProcessor` is a hosted background service that polls the `outbox_messages` table on a configurable interval (default 5 seconds) for rows where `ProcessedAt IS NULL AND FailedAt IS NULL`. For each batch of unprocessed messages (configurable batch size, default 20, ordered by `OccurredAt`), it:
    - Deserializes the event payload

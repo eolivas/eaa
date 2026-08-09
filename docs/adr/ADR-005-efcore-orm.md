@@ -6,9 +6,9 @@ Accepted
 
 ## Context
 
-The Orders service requires a persistence layer to map domain aggregates (`Order`, `OrderLine`) and supporting entities (`OutboxMessage`) to a relational database. Key requirements:
+The service requires a persistence layer to map domain aggregates (`{Entity}`, `{Entity}Line`) and supporting entities (`OutboxMessage`) to a relational database. Key requirements:
 
-- **Domain model fidelity**: The ORM must support mapping rich domain models with value objects (e.g., `Money`), strongly-typed IDs (`OrderId`, `CustomerId`), private collection fields, and owned entity types — without forcing the domain to conform to database conventions.
+- **Domain model fidelity**: The ORM must support mapping rich domain models with value objects (e.g., `Money`), strongly-typed IDs (`{Entity}Id`, `CustomerId`), private collection fields, and owned entity types — without forcing the domain to conform to database conventions.
 - **Migration support**: Schema changes must be version-controlled and applied in CI/CD pipelines.
 - **Provider portability**: The platform targets PostgreSQL in production (Docker Compose and AWS RDS Aurora) and must support SQLite or in-memory providers for integration testing.
 - **Security**: All queries must use parameterized inputs. Raw SQL string concatenation with user-supplied input is prohibited (Requirement 18.4).
@@ -21,13 +21,13 @@ Alternatives considered:
 
 ## Decision
 
-We select **Entity Framework Core 8** as the ORM for all .NET services in the platform. The implementation in the Orders service:
+We select **Entity Framework Core 8** as the ORM for all .NET services in the platform. The implementation:
 
-- **DbContext**: `OrdersDbContext` manages `DbSet<Order>` (mapped as `orders` table) and `DbSet<OutboxMessage>` (mapped as `outbox_messages` table).
+- **DbContext**: `{SolutionName}DbContext` manages `DbSet<{Entity}>` (mapped as `{entities}` table) and `DbSet<OutboxMessage>` (mapped as `outbox_messages` table).
 - **Entity Type Configurations**: Fluent API configurations in separate `IEntityTypeConfiguration<T>` classes:
-  - `OrderEntityTypeConfiguration`: Maps `Order` aggregate with strongly-typed ID conversions (`OrderId` → `Guid`), `Money` as an owned entity (no separate table), and `OrderLine` as an owned collection in `order_lines` table with orphan deletion and `PropertyAccessMode.Field` targeting the private `_lines` field.
+  - `{Entity}EntityTypeConfiguration`: Maps `{Entity}` aggregate with strongly-typed ID conversions (`{Entity}Id` → `Guid`), `Money` as an owned entity (no separate table), and `{Entity}Line` as an owned collection in `{entity}_lines` table with orphan deletion and `PropertyAccessMode.Field` targeting the private `_lines` field.
   - `OutboxMessageEntityTypeConfiguration`: Maps `OutboxMessage` with non-nullable columns and nullable `ProcessedAt` for polling.
-- **Repository pattern**: `EfOrderRepository` implements `IOrderRepository` (defined in Domain) using EF Core. All queries use `.Include(o => o.Lines)` to ensure aggregates are always loaded complete.
+- **Repository pattern**: `Ef{Entity}Repository` implements `I{Entity}Repository` (defined in Domain) using EF Core. All queries use `.Include(o => o.Lines)` to ensure aggregates are always loaded complete.
 - **Parameterized queries only**: All EF Core LINQ queries compile to parameterized SQL. No raw SQL string concatenation appears anywhere in the codebase.
 - **Database provider**: PostgreSQL via `Npgsql.EntityFrameworkCore.PostgreSQL` in production and Docker Compose; SQLite in-memory for unit/integration tests.
 

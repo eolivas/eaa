@@ -10,7 +10,7 @@ Every service, frontend, and infrastructure repository follows a consistent nami
 
 | Repository type       | Naming pattern       | Example              |
 |-----------------------|----------------------|----------------------|
-| Service repository    | `<service>-service`  | `orders-service`     |
+| Service repository    | `<service>-service`  | `{service-name}-service`     |
 | Frontend repository   | `frontend`           | `frontend`           |
 | Infrastructure repository | `platform-infra` | `platform-infra`     |
 
@@ -39,7 +39,7 @@ Every commit message MUST follow the [Conventional Commits](https://www.conventi
 ```
 
 - **type** — the category of change (see table below)
-- **scope** — the area of the codebase affected (e.g., `orders`, `money`, `deps`)
+- **scope** — the area of the codebase affected (e.g., `{entity}`, `money`, `deps`)
 - **description** — a concise summary in imperative mood, lowercase, no trailing period
 
 ### Commit Types
@@ -60,7 +60,7 @@ Every commit message MUST follow the [Conventional Commits](https://www.conventi
 ### Examples
 
 ```
-feat(orders): add cancellation endpoint
+feat({entity}): add cancellation endpoint
 fix(money): handle zero-amount edge case
 chore(deps): update EF Core to 8.0.x
 docs(adr): add ADR-006 for caching strategy
@@ -72,15 +72,15 @@ test(domain): add property tests for Money addition
 Breaking changes MUST include a `BREAKING CHANGE:` footer in the commit body. The footer explains what changed and what consumers need to do.
 
 ```
-feat(orders): change order ID from int to UUID
+feat({entity}): change {entity} ID from int to UUID
 
-BREAKING CHANGE: Order IDs are now UUIDs. All API consumers must update
+BREAKING CHANGE: {Entity} IDs are now UUIDs. All API consumers must update
 their client code to send and receive string-based IDs instead of integers.
-Existing orders will be migrated with new UUID identifiers.
+Existing {entities} will be migrated with new UUID identifiers.
 ```
 
 When a breaking change is introduced, the commit type line MAY also append `!` after the scope for additional visibility:
 
 ```
-feat(orders)!: change order ID from int to UUID
+feat({entity})!: change {entity} ID from int to UUID
 ```

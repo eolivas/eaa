@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-The Orders API exposes public-facing HTTP endpoints that need protection against abuse (brute-force attacks, resource exhaustion) and common web security vulnerabilities (clickjacking, MIME sniffing, server fingerprinting). While the MCP layer has its own rate limiting, the standard REST endpoints under `/api/orders` had no throttling or security header enforcement.
+The API exposes public-facing HTTP endpoints that need protection against abuse (brute-force attacks, resource exhaustion) and common web security vulnerabilities (clickjacking, MIME sniffing, server fingerprinting). While the MCP layer has its own rate limiting, the standard REST endpoints under `/api/{entities}` had no throttling or security header enforcement.
 
 OWASP guidelines recommend several response headers as baseline security controls. Without rate limiting, a single client can monopolize server resources and degrade service for others.
 
@@ -17,7 +17,7 @@ We implement two middleware components in the API pipeline:
 ### Rate Limiting
 
 - **Algorithm**: ASP.NET Core 8 built-in fixed-window rate limiter (`Microsoft.AspNetCore.RateLimiting`).
-- **Scope**: Applied to the `/api/orders` endpoint group via `.RequireRateLimiting("orders-api")`.
+- **Scope**: Applied to the `/api/{entities}` endpoint group via `.RequireRateLimiting("{solution-name}-api")`.
 - **Partition key**: Authenticated user's `sub` claim; falls back to `RemoteIpAddress` for unauthenticated requests.
 - **Configuration**: `RateLimit:PermitLimit` (default 100) and `RateLimit:WindowSeconds` (default 60) read from `IConfiguration`.
 - **Response on rejection**: HTTP 429 with `Retry-After` header (seconds remaining in current window).

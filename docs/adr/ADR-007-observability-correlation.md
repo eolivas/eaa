@@ -21,7 +21,7 @@ Add `WithMetrics` to the existing OpenTelemetry builder registration:
 ```csharp
 builder.Services.AddOpenTelemetry()
     .WithTracing(tp => tp.AddAspNetCoreInstrumentation().AddEntityFrameworkCoreInstrumentation().AddOtlpExporter())
-    .WithMetrics(mp => mp.AddAspNetCoreInstrumentation().AddMeter("Orders.Mcp").AddOtlpExporter());
+    .WithMetrics(mp => mp.AddAspNetCoreInstrumentation().AddMeter("{SolutionName}.Metrics").AddOtlpExporter());
 ```
 
 Both traces and metrics are exported to the OTEL Collector via OTLP gRPC (port 4317). If the collector is unreachable, the exporter drops data silently (non-fatal — the API continues serving requests).
@@ -36,7 +36,7 @@ Add three services to `docker-compose.yml`:
 | `jaeger` | `jaegertracing/all-in-one:1.54` | 16686 | Distributed trace visualization |
 | `prometheus` | `prom/prometheus:v2.50.0` | 9090 | Metrics query and dashboard |
 
-The Orders API depends on `otel-collector` with `condition: service_healthy` to ensure the collector is ready before the API starts exporting.
+The API depends on `otel-collector` with `condition: service_healthy` to ensure the collector is ready before the API starts exporting.
 
 ### Correlation ID Propagation
 
@@ -49,7 +49,7 @@ Implement a `CorrelationIdMiddleware` that:
 
 The correlation ID is then propagated through the system:
 
-- **Outbox**: The `OrdersDbContext` captures the current correlation ID from `ICorrelationIdAccessor` and stores it on the `OutboxMessage.CorrelationId` column.
+- **Outbox**: The `{SolutionName}DbContext` captures the current correlation ID from `ICorrelationIdAccessor` and stores it on the `OutboxMessage.CorrelationId` column.
 - **Outbox Processor**: When publishing, includes the correlation ID in MassTransit message headers (`X-Correlation-Id`).
 - **MassTransit Consumers**: Extract the correlation ID from the message header and push it to the Serilog LogContext.
 

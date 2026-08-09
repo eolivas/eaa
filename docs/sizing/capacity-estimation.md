@@ -1,6 +1,6 @@
 # Capacity Estimation Methodology
 
-This document defines the standard six-step capacity estimation methodology that all services must complete before go-live. It includes reference numbers, a fully worked example for the Orders PoC, architectural decision gates, and the three-scenario scaling projection pattern.
+This document defines the standard six-step capacity estimation methodology that all services must complete before go-live. It includes reference numbers, a fully worked example for the {Entity} Service PoC, architectural decision gates, and the three-scenario scaling projection pattern.
 
 ---
 
@@ -119,15 +119,15 @@ Compare the computed metrics (peak QPS, storage growth, latency headroom) agains
 
 ---
 
-## 3. Worked Example — Orders PoC at 100K DAU
+## 3. Worked Example — {Entity} Service PoC at 100K DAU
 
 ### Step 1 — Load Profile
 
 | Parameter | Value |
 |-----------|-------|
 | DAU | 100,000 |
-| Orders placed per user per day | 0.1 |
-| Order reads per user per day | 2.0 |
+| {Entities} placed per user per day | 0.1 |
+| {Entity} reads per user per day | 2.0 |
 | Peak-to-average ratio | 5× |
 | Read/write ratio | 95:5 |
 | Average request size (write) | ~1 KB |
@@ -151,9 +151,9 @@ Write QPS (peak) = 12 × 0.05 ≈ 0.6 req/s
 ### Step 3 — Estimate Storage
 
 ```
-Daily new orders = 100,000 × 0.1 = 10,000 orders/day
+Daily new {entities} = 100,000 × 0.1 = 10,000 {entities}/day
 
-Average record size = ~500 bytes (order row + order_lines + indexes)
+Average record size = ~500 bytes ({entity} row + {entity}_lines + indexes)
 
 Daily storage growth = 10,000 × 500 = 5 MB/day
 
@@ -189,7 +189,7 @@ Latency headroom = 200 − 19 = 181 ms remaining
 
 **Result: 181 ms remaining for business logic and data access**
 
-With PostgreSQL indexed reads at 1–5 ms, the Orders service has ample headroom.
+With PostgreSQL indexed reads at 1–5 ms, the {Entity} service has ample headroom.
 
 ### Step 6 — Map to Architectural Decisions
 
@@ -264,7 +264,7 @@ Before go-live, every service must project capacity across three scenarios:
 
 Teams must not launch a service that would fail under Scenario C without a documented, reviewed migration path.
 
-### Example Projection — Orders PoC
+### Example Projection — {Entity} Service PoC
 
 | Metric | Scenario A (100K DAU) | Scenario B (500K DAU) | Scenario C (1M DAU) |
 |--------|----------------------:|----------------------:|--------------------:|
@@ -274,7 +274,7 @@ Teams must not launch a service that would fail under Scenario C without a docum
 | Annual storage | 16 GB | 80 GB | 160 GB |
 | Peak bandwidth | 0.2 Mbit/s | 1.0 Mbit/s | 2.0 Mbit/s |
 
-**Scenario C assessment**: No decision gates triggered even at 10× launch DAU. The Orders PoC architecture (single Fargate task + single RDS instance) scales to 1M DAU without architectural changes. No migration path document required.
+**Scenario C assessment**: No decision gates triggered even at 10× launch DAU. The {Entity} Service PoC architecture (single Fargate task + single RDS instance) scales to 1M DAU without architectural changes. No migration path document required.
 
 ---
 
