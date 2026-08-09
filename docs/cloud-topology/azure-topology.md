@@ -26,7 +26,7 @@ graph TD
     subgraph Compute["Container Apps Environment"]
         BFF["BFF Service\n(.NET Minimal API)"]
         Identity["Identity Service\n(.NET Minimal API)"]
-        Orders["Orders Service\n(.NET Minimal API)"]
+        CoreService["{Entity} Service\n(.NET Minimal API)"]
         MCP["MCP Gateway\n(.NET Minimal API)"]
         Notifications["Notifications Service\n(.NET — consumer only)"]
     end
@@ -54,24 +54,24 @@ graph TD
     APIM --> BFF
     APIM --> MCP
     BFF --> Identity
-    BFF --> Orders
-    Orders --> AzSQL
+    BFF --> CoreService
+    CoreService --> AzSQL
     Identity --> AzSQL
-    Orders --> Redis
-    Orders --> SB
+    CoreService --> Redis
+    CoreService --> SB
     SB --> Notifications
-    MCP --> Orders
+    MCP --> CoreService
     MCP --> Identity
 
     ACR -.-> BFF
     ACR -.-> Identity
-    ACR -.-> Orders
+    ACR -.-> CoreService
     ACR -.-> Notifications
     ACR -.-> MCP
-    KV -.-> Orders
+    KV -.-> CoreService
     KV -.-> Identity
-    AI -.-> Orders
-    Monitor -.-> Orders
+    AI -.-> CoreService
+    Monitor -.-> CoreService
 ```
 
 ---
@@ -92,7 +92,7 @@ graph TD
 │       ▼                                          ▼                           │
 │  ┌─── Container Apps Environment ────────────────────────────────┐          │
 │  │                                                                │          │
-│  │  BFF Service        Identity Service     Orders Service       │          │
+│  │  BFF Service        Identity Service     {Entity} Service     │          │
 │  │  (0.5 vCPU/1 GB)   (0.5 vCPU/1 GB)     (0.5 vCPU/1 GB)     │          │
 │  │       │                  │                    │                │          │
 │  │  MCP Gateway        Notifications Service                     │          │
@@ -164,7 +164,7 @@ All GitHub Actions workflows MUST authenticate to AWS using OIDC federation. Thi
           "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
         },
         "StringLike": {
-          "token.actions.githubusercontent.com:sub": "repo:enterprise-org/orders-service:*"
+          "token.actions.githubusercontent.com:sub": "repo:enterprise-org/{service-name}-service:*"
         }
       }
     }

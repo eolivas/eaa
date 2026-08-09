@@ -6,9 +6,9 @@ Accepted
 
 ## Context
 
-The platform follows a microservices architecture with bounded contexts (Identity, Orders, Notifications) that need to communicate asynchronously. Key requirements:
+The platform follows a microservices architecture with bounded contexts (Identity, {Entity} Service, Notifications) that need to communicate asynchronously. Key requirements:
 
-- **Loose coupling**: Services must not take direct dependencies on each other's APIs for event-driven workflows (e.g., Notifications needs to react to `OrderPlacedEvent` without the Orders service knowing about Notifications).
+- **Loose coupling**: Services must not take direct dependencies on each other's APIs for event-driven workflows (e.g., Notifications needs to react to `{Entity}PlacedEvent` without the {Entity} service knowing about Notifications).
 - **Transport portability**: The platform runs on both AWS (SNS/SQS) and Azure (Service Bus). The messaging code should not be rewritten for each cloud provider.
 - **Reliability**: Messages must not be lost during transient broker outages. The system must support at-least-once delivery with idempotent consumers.
 - **Local development**: Engineers need to run the full event-driven flow locally without cloud accounts, using RabbitMQ in Docker.
@@ -24,9 +24,9 @@ We adopt **MassTransit** as the messaging abstraction layer for all inter-servic
 
 - **Transport configuration**: In local development and Docker Compose, MassTransit is configured with the **RabbitMQ** transport (`cfg.UsingRabbitMq`) with connection settings from `RabbitMq:Host`, `RabbitMq:Username`, and `RabbitMq:Password` configuration. Consumer retry is configured with exponential backoff (3 retries, 1s→8s). Failed messages are moved to a dead-letter queue (`_error` suffix). When `RabbitMq:Host` is not configured (e.g., running locally without Docker), MassTransit falls back to the **InMemory** transport with a logged warning. In production, the transport can be swapped to AWS SQS/SNS or Azure Service Bus — no consumer code changes required.
 - **Event publishing**: The `MassTransitEventPublisher` class implements `IApplicationEventPublisher` (defined in the Application layer) by delegating to `IPublishEndpoint.Publish`. This keeps the Application layer transport-agnostic.
-- **Consumer implementation**: `OrderPlacedConsumer` implements `IConsumer<OrderPlacedEvent>` and is auto-discovered via assembly scanning. Each consumer processes one event type.
+- **Consumer implementation**: `{Entity}PlacedConsumer` implements `IConsumer<{Entity}PlacedEvent>` and is auto-discovered via assembly scanning. Each consumer processes one event type.
 - **Integration with Outbox**: MassTransit publishes events dispatched by the `OutboxProcessor` background service (see ADR-004), ensuring events are only published after successful persistence.
-- **Docker Compose**: RabbitMQ 3.13 runs as a service with healthchecks; the Orders API depends on it with `condition: service_healthy`.
+- **Docker Compose**: RabbitMQ 3.13 runs as a service with healthchecks; the API depends on it with `condition: service_healthy`.
 
 ## Consequences
 

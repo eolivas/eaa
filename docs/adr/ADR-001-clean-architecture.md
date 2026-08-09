@@ -19,12 +19,12 @@ Traditional layered architectures (UI → Business → Data) create tight coupli
 
 We adopt **Clean Architecture** (Robert C. Martin) as the structural foundation for all backend services, realized as a four-project structure per service:
 
-1. **Orders.Domain** — Aggregates, entities, value objects, domain events, repository interfaces. Zero external NuGet dependencies. The innermost layer that defines the ubiquitous language.
-2. **Orders.Application** — CQRS command/query handlers (MediatR), pipeline behaviours (validation, logging), DTOs, and application-level abstractions (`IApplicationEventPublisher`). Depends only on Domain.
-3. **Orders.Infrastructure** — EF Core persistence, MassTransit messaging, HTTP clients, caching decorators, and all external I/O. Implements interfaces defined in Domain and Application. Depends on Domain and Application.
-4. **Orders.Api** — ASP.NET Core Minimal API endpoints, middleware (exception handling), authentication/authorization configuration, and the composition root (`Program.cs`). Depends on all inner layers.
+1. **{SolutionName}.Domain** — Aggregates, entities, value objects, domain events, repository interfaces. Zero external NuGet dependencies. The innermost layer that defines the ubiquitous language.
+2. **{SolutionName}.Application** — CQRS command/query handlers (MediatR), pipeline behaviours (validation, logging), DTOs, and application-level abstractions (`IApplicationEventPublisher`). Depends only on Domain.
+3. **{SolutionName}.Infrastructure** — EF Core persistence, MassTransit messaging, HTTP clients, caching decorators, and all external I/O. Implements interfaces defined in Domain and Application. Depends on Domain and Application.
+4. **{SolutionName}.Api** — ASP.NET Core Minimal API endpoints, middleware (exception handling), authentication/authorization configuration, and the composition root (`Program.cs`). Depends on all inner layers.
 
-The **dependency rule** is strictly enforced: dependencies point inward only. Domain has no knowledge of Application, Infrastructure, or Api. Application has no knowledge of Infrastructure or Api. This is validated at build time via NetArchTest architecture tests in `Orders.Architecture.Tests`.
+The **dependency rule** is strictly enforced: dependencies point inward only. Domain has no knowledge of Application, Infrastructure, or Api. Application has no knowledge of Infrastructure or Api. This is validated at build time via NetArchTest architecture tests in `{SolutionName}.Architecture.Tests`.
 
 ## Consequences
 

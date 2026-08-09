@@ -22,8 +22,8 @@ Alternatives considered:
 
 We adopt **MediatR** as the in-process mediator for dispatching commands and queries in the Application layer. The implementation follows these conventions:
 
-- **Commands** implement `IRequest<TResponse>` (e.g., `PlaceOrderCommand : IRequest<Guid>`). Commands represent intent to change state.
-- **Queries** implement `IRequest<TResponse>` (e.g., `GetOrderQuery : IRequest<OrderDto?>`). Queries are side-effect-free reads.
+- **Commands** implement `IRequest<TResponse>` (e.g., `Place{Entity}Command : IRequest<Guid>`). Commands represent intent to change state.
+- **Queries** implement `IRequest<TResponse>` (e.g., `Get{Entity}Query : IRequest<{Entity}Dto?>`). Queries are side-effect-free reads.
 - **Handlers** implement `IRequestHandler<TRequest, TResponse>` with a single `Handle` method.
 - **Pipeline Behaviours** implement `IPipelineBehavior<TRequest, TResponse>` and are registered in order:
   1. `LoggingBehaviour` (outermost) — logs request name and elapsed time at `Information` level.
@@ -31,7 +31,7 @@ We adopt **MediatR** as the in-process mediator for dispatching commands and que
 
 Registration in `Program.cs`:
 ```csharp
-services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<PlaceOrderHandler>());
+services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Place{Entity}Handler>());
 services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
 services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 ```

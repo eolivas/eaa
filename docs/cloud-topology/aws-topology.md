@@ -27,7 +27,7 @@ graph TD
     subgraph Compute["ECS Fargate — Microservices"]
         BFF["BFF Service\n(.NET Minimal API)"]
         Identity["Identity Service\n(.NET Minimal API)"]
-        Orders["Orders Service\n(.NET Minimal API)"]
+        CoreService["{Entity} Service\n(.NET Minimal API)"]
         MCP["MCP Gateway\n(.NET Minimal API)"]
         Notifications["Notifications Service\n(.NET — consumer only)"]
     end
@@ -58,26 +58,26 @@ graph TD
     APIGW --> BFF
     APIGW --> MCP
     BFF --> Identity
-    BFF --> Orders
-    Orders --> Aurora
+    BFF --> CoreService
+    CoreService --> Aurora
     Identity --> Aurora
     Identity --> DDB
-    Orders --> Redis
-    Orders --> SNS
+    CoreService --> Redis
+    CoreService --> SNS
     SNS --> SQS
     SQS --> Notifications
-    MCP --> Orders
+    MCP --> CoreService
     MCP --> Identity
 
     ECR -.-> BFF
     ECR -.-> Identity
-    ECR -.-> Orders
+    ECR -.-> CoreService
     ECR -.-> Notifications
     ECR -.-> MCP
-    SM -.-> Orders
+    SM -.-> CoreService
     SM -.-> Identity
-    CW -.-> Orders
-    XRay -.-> Orders
+    CW -.-> CoreService
+    XRay -.-> CoreService
 ```
 
 ---
@@ -101,7 +101,7 @@ graph TD
 │       ▼                                          ▼                           │
 │  ┌─── ECS Fargate Cluster ───────────────────────────────────────┐          │
 │  │                                                                │          │
-│  │  BFF Service        Identity Service     Orders Service       │          │
+│  │  BFF Service        Identity Service     {Entity} Service     │          │
 │  │  (0.5 vCPU/1 GB)   (0.5 vCPU/1 GB)     (0.5 vCPU/1 GB)     │          │
 │  │       │                  │                    │                │          │
 │  │       │                  │                    │                │          │
@@ -138,8 +138,8 @@ graph TD
 | ECS Fargate | Compute | Serverless container hosting for all microservices |
 | RDS Aurora | Database | Multi-AZ PostgreSQL, encrypted at rest (AES-256), automated backups |
 | DynamoDB | NoSQL | Session store, token blacklist, high-throughput key-value lookups |
-| ElastiCache Redis | Cache | Distributed caching for order reads, outbox deduplication |
-| SNS | Messaging | Fan-out topic for domain events (OrderPlaced, OrderCancelled) |
+| ElastiCache Redis | Cache | Distributed caching for reads, outbox deduplication |
+| SNS | Messaging | Fan-out topic for domain events ({Entity}Placed, {Entity}Cancelled) |
 | SQS | Messaging | Per-consumer queues with dead-letter queue (DLQ) for retry |
 | ECR | Registry | Private container image registry, image scanning enabled |
 | Secrets Manager | Security | Rotating credentials, injected via ECS task definition |

@@ -31,19 +31,19 @@ The Identity service does not subscribe to domain events from other bounded cont
 
 ---
 
-## Orders Service
+## {Entity} Service
 
 ### Aggregate Roots
 
 | Aggregate | Description |
 |-----------|-------------|
-| **Order** | Represents a customer order. Contains one or more `OrderLine` entities and a computed `Total` (Money value object). Enforces the status lifecycle: `Pending → Placed → Shipped` and `Pending → Cancelled`, `Placed → Cancelled`. All invalid transitions are rejected. |
+| **{Entity}** | Represents a customer {entity}. Contains one or more `{Entity}Line` entities and a computed `Total` (Money value object). Enforces the status lifecycle: `Pending → Placed → Shipped` and `Pending → Cancelled`, `Placed → Cancelled`. All invalid transitions are rejected. |
 
 ### Entities
 
 | Entity | Description |
 |--------|-------------|
-| **OrderLine** | A line item within an Order. Holds a product reference, quantity (must be > 0), and unit price (Money). Created exclusively through a static factory method that enforces domain invariants. |
+| **{Entity}Line** | A line item within an {Entity}. Holds a product reference, quantity (must be > 0), and unit price (Money). Created exclusively through a static factory method that enforces domain invariants. |
 
 ### Value Objects
 
@@ -55,13 +55,13 @@ The Identity service does not subscribe to domain events from other bounded cont
 
 | Event | Raised When |
 |-------|-------------|
-| **OrderCreatedEvent** | `Order.Create(customerId, lines)` is called successfully, producing a new Order in `Pending` status. Carries `OrderId` and `CustomerId`. |
-| **OrderPlacedEvent** | `Order.Place()` is called on an Order in `Pending` status, transitioning it to `Placed`. Carries `OrderId`. |
-| **OrderCancelledEvent** | `Order.Cancel(reason)` is called on an Order in `Pending` or `Placed` status, transitioning it to `Cancelled`. Carries `OrderId` and `Reason`. |
+| **{Entity}CreatedEvent** | `{Entity}.Create(customerId, lines)` is called successfully, producing a new {Entity} in `Pending` status. Carries `{Entity}Id` and `CustomerId`. |
+| **{Entity}PlacedEvent** | `{Entity}.Place()` is called on an {Entity} in `Pending` status, transitioning it to `Placed`. Carries `{Entity}Id`. |
+| **{Entity}CancelledEvent** | `{Entity}.Cancel(reason)` is called on an {Entity} in `Pending` or `Placed` status, transitioning it to `Cancelled`. Carries `{Entity}Id` and `Reason`. |
 
 ### Subscribed Domain Events
 
-The Orders service does not subscribe to domain events from other bounded contexts. It is a publisher of order-lifecycle events consumed by downstream services (e.g., Notifications).
+The {Entity} service does not subscribe to domain events from other bounded contexts. It is a publisher of {entity}-lifecycle events consumed by downstream services (e.g., Notifications).
 
 ---
 
@@ -79,7 +79,7 @@ The Notifications service does not publish domain events. Its responsibility is 
 
 | Event | Source Context | Action Taken on Receipt |
 |-------|---------------|------------------------|
-| **OrderPlacedEvent** | Orders | Triggers the `SendEmailNotification` handler, which composes and sends an order-confirmation email to the customer via the configured email delivery infrastructure (SMTP or Amazon SES). |
+| **{Entity}PlacedEvent** | {Entity} Service | Triggers the `SendEmailNotification` handler, which composes and sends a confirmation email to the customer via the configured email delivery infrastructure (SMTP or Amazon SES). |
 
 ---
 
@@ -87,20 +87,20 @@ The Notifications service does not publish domain events. Its responsibility is 
 
 ```
 ┌──────────────────┐       publishes        ┌────────────────────────┐
-│  Identity        │                         │  Orders                │
+│  Identity        │                         │  {Entity} Service      │
 │  (upstream)      │                         │  (core domain)         │
 │                  │                         │                        │
-│  User aggregate  │                         │  Order aggregate       │
-│  Role VO         │                         │  OrderLine entity      │
+│  User aggregate  │                         │  {Entity} aggregate    │
+│  Role VO         │                         │  {Entity}Line entity   │
 │                  │                         │  Money VO              │
 │  Publishes:      │                         │                        │
 │  UserRegistered  │                         │  Publishes:            │
-│  UserAuthenticated│                        │  OrderCreatedEvent     │
-└──────────────────┘                         │  OrderPlacedEvent      │
-                                             │  OrderCancelledEvent   │
+│  UserAuthenticated│                        │  {Entity}CreatedEvent  │
+└──────────────────┘                         │  {Entity}PlacedEvent   │
+                                             │  {Entity}CancelledEvent│
                                              └───────────┬────────────┘
                                                          │
-                                              subscribes │ OrderPlacedEvent
+                                              subscribes │ {Entity}PlacedEvent
                                                          ▼
                                              ┌────────────────────────┐
                                              │  Notifications         │
