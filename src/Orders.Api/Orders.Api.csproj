@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Program.Scaffold.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="8.0.2" />
     <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="8.0.2" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
