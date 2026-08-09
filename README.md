@@ -4,11 +4,11 @@ A reference implementation of a production-grade enterprise platform built with 
 
 ## Overview
 
-This repository provides a .NET 8 backend project structure following enterprise best practices. It ships as a `dotnet new` template so teams can scaffold new services quickly.
+This repository provides a .NET 8+ backend project structure following enterprise best practices. It ships as a `dotnet new` template so teams can scaffold new services quickly.
 
 ## Tech Stack
 
-### Backend (.NET 8)
+### Backend (.NET 8+)
 
 - **Architecture**: Clean Architecture (Domain → Application → Infrastructure → API)
 - **CQRS**: MediatR for command/query separation with pipeline behaviours
@@ -19,49 +19,75 @@ This repository provides a .NET 8 backend project structure following enterprise
 - **Auth**: JWT Bearer authentication
 - **API**: ASP.NET Core Minimal APIs
 
+### Frontend (React + TypeScript)
+
+- **Build**: Vite 6
+- **Server State**: TanStack Query 5
+- **Client State**: Zustand 5
+- **HTTP**: Axios
+- **Testing**: Vitest + @testing-library/react + fast-check
+
 ### Infrastructure
 
 - **Database**: PostgreSQL 16
 - **Message Broker**: RabbitMQ 3.13
 - **Containerization**: Docker + Docker Compose
 - **CI/CD**: GitHub Actions
+- **Cloud**: AWS (ECS Fargate, RDS Aurora, SNS/SQS) or Azure (Container Apps, Azure SQL, Service Bus)
 
 ## Project Structure
 
 ```
 ├── src/
-│   ├── Orders.Domain/           # Aggregates, entities, value objects, domain events
-│   ├── Orders.Application/      # Commands, queries, handlers, DTOs, behaviours
-│   ├── Orders.Infrastructure/   # EF Core, MassTransit, HTTP clients, caching
-│   └── Orders.Api/              # Minimal API endpoints, middleware
+│   ├── {SolutionName}.Domain/           # Aggregates, entities, value objects, domain events
+│   ├── {SolutionName}.Application/      # Commands, queries, handlers, DTOs, behaviours
+│   ├── {SolutionName}.Infrastructure/   # EF Core, MassTransit, HTTP clients, caching
+│   └── {SolutionName}.Api/              # Minimal API endpoints, middleware
 ├── tests/
-│   ├── Orders.Domain.Tests/     # Domain unit tests
-│   ├── Orders.Application.Tests/# Handler tests
-│   ├── Orders.Infrastructure.Tests/ # Infrastructure tests
-│   ├── Orders.Api.Tests/        # API tests
-│   ├── Orders.Architecture.Tests/  # NetArchTest dependency rule enforcement
-│   └── Orders.Integration.Tests/   # Integration tests
-└── docs/
+│   ├── {SolutionName}.Domain.Tests/     # Domain unit tests + property tests
+│   ├── {SolutionName}.Application.Tests/# Handler tests (mocked deps)
+│   ├── {SolutionName}.Infrastructure.Tests/ # Outbox, messaging, persistence tests
+│   ├── {SolutionName}.Api.Tests/        # Middleware & endpoint property tests
+│   ├── {SolutionName}.Architecture.Tests/  # NetArchTest dependency rule enforcement
+│   └── {SolutionName}.Integration.Tests/   # End-to-end tests (Testcontainers)
+├── frontend/                            # React SPA (Vite + TanStack Query + Zustand)
+├── docs/                                # ADRs, cloud topology, sizing, security
+└── .kiro/steering/                      # AI agent steering files (conventions & guides)
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 8+ SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Node.js 20+](https://nodejs.org/) (for frontend)
 
 ### Run Locally
 
 ```bash
+# Backend
 dotnet build
-dotnet run --project src/Orders.Api
+dotnet run --project src/{SolutionName}.Api
+
+# Frontend
+cd frontend
+npm install
+npm run dev
+
+# Full stack (Docker Compose)
+docker-compose up
 ```
 
 ### Run Tests
 
 ```bash
+# Backend
 dotnet test
+
+# Frontend
+cd frontend
+npm test
 ```
 
 ## API Operational Endpoints
@@ -69,15 +95,76 @@ dotnet test
 | Endpoint | Purpose | Auth Required |
 |----------|---------|---------------|
 | `GET /health/live` | Liveness probe (always 200 if process is running) | No |
-| `GET /health/ready` | Readiness probe | No |
+| `GET /health/ready` | Readiness probe (checks PostgreSQL + RabbitMQ) | No |
 | `GET /openapi/v1.json` | OpenAPI 3.0 specification | No |
 | `GET /swagger` | Swagger UI (Development only) | No |
 
 ## Security
 
 - **Security headers**: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Server` header removed, HSTS on HTTPS connections.
+- **Rate limiting**: Fixed-window per user/IP with configurable limits.
 - **Request size**: Bodies exceeding 1 MB are rejected with HTTP 413 before deserialization.
-- **Correlation IDs**: `X-Correlation-Id` header is propagated across HTTP requests and log entries for distributed tracing.
+- **Correlation IDs**: `X-Correlation-Id` header propagated across HTTP requests, outbox, and message consumers.
+
+---
+
+## Architecture Decision Records (ADRs)
+
+ADRs document significant architectural choices and their rationale. Located in `docs/adr/`.
+
+| ADR | Title | Summary |
+|-----|-------|---------|
+| [ADR-001](docs/adr/ADR-001-clean-architecture.md) | Clean Architecture | Four-layer structure with strict dependency rule enforced by NetArchTest |
+| [ADR-002](docs/adr/ADR-002-mediatr-cqrs.md) | MediatR for CQRS | In-process mediator with pipeline behaviours for validation and logging |
+| [ADR-003](docs/adr/ADR-003-masstransit-messaging.md) | MassTransit Messaging | Transport abstraction over RabbitMQ/SNS/Service Bus with consumer retry and DLQ |
+| [ADR-004](docs/adr/ADR-004-outbox-pattern.md) | Outbox Pattern | Transactional outbox for guaranteed at-least-once event delivery |
+| [ADR-005](docs/adr/ADR-005-efcore-orm.md) | EF Core ORM | Rich domain mapping with strongly-typed IDs, owned entities, and parameterized queries |
+| [ADR-006](docs/adr/ADR-006-rate-limiting-security-headers.md) | Rate Limiting & Security Headers | Fixed-window rate limiter and OWASP security headers middleware |
+| [ADR-007](docs/adr/ADR-007-observability-correlation.md) | Observability & Correlation | OpenTelemetry metrics/traces, local observability stack, correlation ID propagation |
+| [ADR-008](docs/adr/ADR-008-microservices-architecture.md) | Microservices Architecture | Bounded context ownership, async-first communication, independent deployability |
+| [ADR-009](docs/adr/ADR-009-testing-framework-selection.md) | Testing Framework Selection | xUnit + FsCheck + PBT strategy, Vitest + fast-check for frontend |
+| [ADR-010](docs/adr/ADR-010-frontend-technology-selection.md) | Frontend Technology Selection | React + Vite + TanStack Query + Zustand, feature-module architecture |
+| [ADR-011](docs/adr/ADR-011-manual-object-mapping.md) | Manual Object Mapping | Static `From()` methods over AutoMapper/Mapster for debuggability and compile-time safety |
+
+---
+
+## Steering Files Overview
+
+Steering files provide AI-agent conventions and development guidelines. Located in `.kiro/steering/`. They are automatically included as context when working with Kiro.
+
+| # | File | Purpose |
+|---|------|---------|
+| 01 | `01-clean-architecture-layer-placement.md` | Layer responsibilities, dependency rules, decision checklist |
+| 02 | `02-ddd-aggregate-entity-creation.md` | Strongly-typed IDs, entity base classes, aggregate root patterns |
+| 03 | `03-cqrs-command-query-scaffolding.md` | Command/query definitions, validators, handlers, DTOs, pipeline behaviours |
+| 04 | `04-masstransit-consumer-event-publishing.md` | Domain events, outbox flow, consumer creation, correlation ID propagation |
+| 05 | `05-minimal-api-endpoint-conventions.md` | Endpoint groups, route patterns, status codes, rate limiting, MediatR dispatch |
+| 06 | `06-efcore-entity-configuration.md` | Entity type configurations, table naming, ID conversions, owned entities |
+| 07 | `07-testing-conventions.md` | Test structure, naming, domain/handler/architecture/integration test patterns, PBT |
+| 08 | `08-conventional-commits-pr-standards.md` | Commit format, PR template, breaking changes, diff size limits |
+| 09 | `09-react-feature-module.md` | Feature directory structure, TanStack Query hooks, Zustand stores, error handling |
+| 10 | `10-docker-cicd-awareness.md` | Docker Compose services, CI/CD pipeline stages, environment variables |
+| 11 | `11-middleware-security-observability.md` | Middleware pipeline order, security headers, rate limiting, OpenTelemetry, CORS |
+| 12 | `12-solid-principles.md` | SRP, OCP, LSP, ISP, DIP applied to each layer with examples and anti-patterns |
+| 13 | `13-design-patterns.md` | Factory, Repository, Decorator, Mediator, Observer, Strategy, CQRS, Outbox |
+| 14 | `14-code-review-practices.md` | Review turnaround, comment categories, .NET/React/testing/security checklists |
+| 15 | `15-microservices-best-practices.md` | Service boundaries, communication patterns, resilience, data ownership, observability |
+| 16 | `16-efcore-best-practices.md` | Query performance, change tracker, concurrency, migrations, connection pooling, anti-patterns |
+| 17 | `17-event-driven-messaging.md` | Event design, schema versioning, idempotency, ordering, DLQ handling, saga patterns |
+| 18 | `18-architectural-principles.md` | Separation of Concerns, DRY, KISS, YAGNI with examples and conflict resolution |
+| 19 | `19-testing-strategy.md` | Testing pyramid, test doubles taxonomy, isolation rules, PBT strategy, frontend testing, contracts |
+| 20 | `20-logging-patterns.md` | Log levels, structured templates, correlation, exception logging, what to log/avoid, configuration |
+| 21 | `21-configuration-options-pattern.md` | Options pattern, validation, environment overrides, secrets management, feature flags |
+| 22 | `22-restful-api-best-practices.md` | Resource naming, HTTP semantics, ProblemDetails, pagination, versioning, caching, integrations |
+| 23 | `23-code-smells-antipatterns.md` | God class, feature envy, primitive obsession, anemic model, prop drilling, detection checklist |
+| 24 | `24-object-mapping-conventions.md` | Manual mapping strategy, From() pattern, direction rules, null handling, anti-patterns |
+| 25 | `25-caching-best-practices.md` | IMemoryCache vs. Redis, cache-aside pattern, invalidation, stampede prevention, key design |
+| 26 | `26-async-patterns.md` | Async all the way, CancellationToken, Task.WhenAll, background services, pitfalls |
+| 27 | `27-security-auth-patterns.md` | JWT auth, policy-based authorization, secure coding, input validation, CORS, encryption |
+| 28 | `28-scaling-system-design.md` | Progressive scaling stages (0→millions), auto-scaling, sharding, performance budgets |
+| 29 | `29-architecture-fundamentals-isaqb.md` | Quality attributes (ISO 25010), C4 documentation, coupling/cohesion, tech debt, ATAM |
+
+---
 
 ## Use as a Template (NuGet Package)
 
